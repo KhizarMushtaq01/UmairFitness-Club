@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>FIGHT CLUB — Premium Combat Fitness</title>
+<style>
+  html,body{margin:0;padding:0;background:#050505}
+  body{-webkit-font-smoothing:antialiased}
+  body[data-theme="dark"]{--bg:#050505;--panel:#0c0c0c;--card:#111111;--line:#212121;--line2:#2e2e2e;--txt:#f5f5f5;--mut:#9c9c9c;--dim:#5c5c5c;--red:#E50914;--inv:#050505;--glow:rgba(229,9,20,.14);--skel:#1a1a1a;--skel2:#262626}
+  body[data-theme="light"]{--bg:#f4f2ef;--panel:#ffffff;--card:#ffffff;--line:#e3e0da;--line2:#d3cfc7;--txt:#0a0a0a;--mut:#5d5b57;--dim:#a09d97;--red:#D00810;--inv:#ffffff;--glow:rgba(208,8,16,.08);--skel:#e7e4df;--skel2:#dbd7d0}
+  ::selection{background:var(--red);color:#fff}
+  *{box-sizing:border-box}
+  @keyframes fcMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @keyframes fcShimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+  @keyframes fcPulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @keyframes fcUp{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:none}}
+  @keyframes fcClip{from{opacity:0;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+  [data-reveal]{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+  [data-reveal="in"]{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    [data-reveal]{opacity:1;transform:none;transition:none}
+    *{animation-duration:.01s !important;animation-iteration-count:1 !important}
+  }
+  image-slot{display:block;width:100%;height:100%}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:5px}
+  ::-webkit-scrollbar-track{background:transparent}
+</style>
+</helmet>
+
+<div data-screen-label="Fight Club" style="min-height:100vh;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.55">
+
+  <!-- ============ PUBLIC HEADER ============ -->
+  <sc-if value="{{ isPublic }}" hint-placeholder-val="{{ true }}">
+    <header style="position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--bg) 82%, transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)">
+      <div style="max-width:1280px;margin:0 auto;padding:10px 24px;min-height:72px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <a onClick="{{ goHome }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none;color:var(--txt)">
+          <div style="width:36px;height:36px;background:var(--txt);color:var(--inv);display:grid;place-items:center;font-family:'Bebas Neue';font-size:19px;letter-spacing:.03em;clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%);position:relative">FC</div>
+          <div style="width:3px;height:22px;background:var(--red)"></div>
+          <div style="font-family:'Bebas Neue';font-size:22px;letter-spacing:.14em;line-height:1">FIGHT CLUB</div>
+        </a>
+        <nav style="display:flex;gap:2px;margin-left:auto;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+          <sc-for list="{{ publicNav }}" as="n" hint-placeholder-count="6">
+            <a onClick="{{ n.on }}" style="cursor:pointer;padding:8px 10px;white-space:nowrap;font:600 12px Inter;letter-spacing:.14em;text-transform:uppercase;color:{{ n.color }};text-decoration:none;border-bottom:2px solid {{ n.border }}" style-hover="color:var(--txt)">{{ n.label }}</a>
+          </sc-for>
+        </nav>
+        <div style="display:flex;align-items:center;gap:14px">
+          <button onClick="{{ toggleTheme }}" title="Toggle theme" style="width:34px;height:34px;border:1px solid var(--line2);background:transparent;color:var(--mut);cursor:pointer;display:grid;place-items:center;font-size:13px;border-radius:0" style-hover="color:var(--txt);border-color:var(--txt)">{{ themeIcon }}</button>
+          <a onClick="{{ goLogin }}" style="cursor:pointer;font:600 12px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);text-decoration:none" style-hover="color:var(--txt)">Sign in</a>
+          <button onClick="{{ goSignup }}" style="background:var(--red);color:#fff;border:none;padding:11px 22px;font:700 12px Inter;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Join now</button>
+        </div>
+      </div>
+    </header>
+  </sc-if>
+
+  <!-- ============ HOME ============ -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <main data-screen-label="Home">
+      <!-- HERO -->
+      <section style="border-bottom:1px solid var(--line);position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;background:radial-gradient(900px 500px at 80% 20%, var(--glow), transparent 65%);pointer-events:none"></div>
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;min-height:640px">
+          <div style="padding:72px 0">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;animation:fcClip .9s cubic-bezier(.2,.7,.2,1) .15s both">
+              <div style="width:34px;height:2px;background:var(--red)"></div>
+              <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--mut)">Boxing · Muay Thai · BJJ · Strength</div>
+            </div>
+            <h1 style="font-family:Anton;font-size:clamp(64px,8.5vw,118px);line-height:.92;margin:0;text-transform:uppercase;letter-spacing:.005em"><span style="display:block;animation:fcUp .8s cubic-bezier(.2,.7,.2,1) .25s both">Earn</span><span style="display:block;animation:fcUp .8s cubic-bezier(.2,.7,.2,1) .38s both">Every</span><span style="display:block;color:var(--red);animation:fcUp .8s cubic-bezier(.2,.7,.2,1) .51s both">Round.</span></h1>
+            <p style="max-width:440px;color:var(--mut);font-size:16px;margin:30px 0 38px;text-wrap:pretty;animation:fcUp .8s cubic-bezier(.2,.7,.2,1) .68s both">A private combat-training club in the heart of the city. World-class coaches, fighter-grade facilities, and a standard that never drops.</p>
+            <div style="display:flex;gap:14px;align-items:center;animation:fcUp .8s cubic-bezier(.2,.7,.2,1) .82s both">
+              <button onClick="{{ goSignup }}" style="background:var(--red);color:#fff;border:none;padding:17px 34px;font:700 13px Inter;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Start free week</button>
+              <button onClick="{{ goClasses }}" style="background:transparent;color:var(--txt);border:1px solid var(--line2);padding:16px 30px;font:700 13px Inter;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="border-color:var(--txt)">Programs</button>
+            </div>
+          </div>
+          <div style="align-self:stretch;position:relative;min-height:640px;animation:fcClip 1.1s cubic-bezier(.2,.7,.2,1) .4s both">
+            <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-img" src="https://img.magnific.com/free-photo/bodybuilder-training-arm-with-resistance-band_7502-4758.jpg?t=st=1783028406~exp=1783032006~hmac=d9af1fd921bf1f196ff67d764812f4261a0a433815350846aa0150e840258762&w=1480" placeholder="Drop hero image — fighter, cinematic, dark" shape="rect" hint-size="100%,640px" style="position:absolute;inset:0;width:100%;height:100%;clip-path:polygon(12% 0,100% 0,100% 100%,0 100%)"></x-import>
+          </div>
+        </div>
+      </section>
+
+      <!-- MARQUEE -->
+      <section aria-hidden="true" style="border-bottom:1px solid var(--line);overflow:hidden;padding:18px 0;background:var(--panel)">
+        <div style="display:flex;width:max-content;animation:fcMarquee 26s linear infinite;gap:0">
+          <sc-for list="{{ marquee }}" as="w" hint-placeholder-count="8">
+            <div style="display:flex;align-items:center;gap:28px;padding-right:28px">
+              <span style="font-family:'Bebas Neue';font-size:26px;letter-spacing:.18em;color:{{ w.color }};white-space:nowrap">{{ w.text }}</span>
+              <span style="width:7px;height:7px;background:var(--red);transform:rotate(45deg);flex:none"></span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- STATS -->
+      <section style="border-bottom:1px solid var(--line)">
+        <div data-reveal style="max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(4,1fr)">
+          <sc-for list="{{ homeStats }}" as="s" hint-placeholder-count="4">
+            <div style="padding:44px 32px;border-left:1px solid var(--line)">
+              <div style="font-family:'Bebas Neue';font-size:56px;line-height:1;color:var(--txt)">{{ s.value }}</div>
+              <div style="font:600 11px Inter;letter-spacing:.24em;text-transform:uppercase;color:var(--mut);margin-top:8px">{{ s.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- PROGRAMS PREVIEW -->
+      <section style="border-bottom:1px solid var(--line);padding:96px 0">
+        <div data-reveal style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="display:flex;align-items:end;justify-content:space-between;margin-bottom:52px">
+            <div>
+              <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:14px">The disciplines</div>
+              <h2 style="font-family:'Bebas Neue';font-size:64px;line-height:.95;margin:0;letter-spacing:.02em">Train like it matters</h2>
+            </div>
+            <a onClick="{{ goClasses }}" style="cursor:pointer;font:700 12px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--txt);text-decoration:none;border-bottom:2px solid var(--red);padding-bottom:6px;white-space:nowrap">All programs →</a>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)">
+            <sc-for list="{{ homePrograms }}" as="p" hint-placeholder-count="3">
+              <div onClick="{{ goClasses }}" style="background:var(--panel);padding:40px 32px 36px;cursor:pointer;position:relative;min-height:280px;display:flex;flex-direction:column" style-hover="background:var(--card)">
+                <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:.2em;color:var(--dim)">{{ p.num }}</div>
+                <div style="font-family:'Bebas Neue';font-size:38px;letter-spacing:.03em;margin:14px 0 10px;line-height:1">{{ p.name }}</div>
+                <p style="color:var(--mut);font-size:14px;margin:0 0 24px;text-wrap:pretty">{{ p.desc }}</p>
+                <div style="margin-top:auto;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">{{ p.level }}</span>
+                  <span style="color:var(--red);font-size:18px">→</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <!-- PHILOSOPHY SPLIT -->
+      <section style="border-bottom:1px solid var(--line)">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center">
+          <div style="position:relative;min-height:520px;margin:64px 0">
+            <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="philosophy-img" src="https://img.magnific.com/free-photo/man-moving-giant-tire-wheel-gym_651396-296.jpg?t=st=1783028462~exp=1783032062~hmac=86810ad1231ce10bb27e98a1385831743eb1c8bbe5a69e39afc6ca7d5b077d12&w=1480" placeholder="Drop training image — heavy bag, chalk, sweat" shape="rect" hint-size="100%,520px" style="position:absolute;inset:0;width:100%;height:100%"></x-import>
+            <div style="position:absolute;left:-1px;bottom:-1px;background:var(--red);color:#fff;padding:18px 26px;font-family:'Bebas Neue';font-size:22px;letter-spacing:.1em;pointer-events:none">EST. 2016</div>
+          </div>
+          <div data-reveal style="padding:80px 0">
+            <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:14px">The standard</div>
+            <h2 style="font-family:'Bebas Neue';font-size:58px;line-height:.98;margin:0 0 24px;letter-spacing:.02em">No mirrors.<br>No shortcuts.<br>No excuses.</h2>
+            <p style="color:var(--mut);max-width:440px;margin:0 0 18px;text-wrap:pretty">Fight Club is a members-only training facility built around one idea: mastery is earned. Every program is coached, every session is measured, and every member is held to the same standard — from first-timers to professional fighters.</p>
+            <p style="color:var(--mut);max-width:440px;margin:0 0 36px;text-wrap:pretty">Capped memberships keep the floor uncrowded. Assessments every eight weeks keep you honest.</p>
+            <button onClick="{{ goAbout }}" style="background:transparent;color:var(--txt);border:1px solid var(--line2);padding:15px 28px;font:700 12px Inter;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="border-color:var(--txt)">Our story</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRICING TEASER -->
+      <section style="border-bottom:1px solid var(--line);padding:96px 0;background:var(--panel)">
+        <div data-reveal style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="text-align:center;margin-bottom:56px">
+            <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:14px">Membership</div>
+            <h2 style="font-family:'Bebas Neue';font-size:64px;line-height:.95;margin:0;letter-spacing:.02em">Pick your corner</h2>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:stretch">
+            <sc-for list="{{ plans }}" as="pl" hint-placeholder-count="3">
+              <div style="background:var(--card);border:1px solid {{ pl.borderColor }};padding:40px 34px;display:flex;flex-direction:column;position:relative">
+                <sc-if value="{{ pl.featured }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:-1px;right:-1px;background:var(--red);color:#fff;font:700 10px Inter;letter-spacing:.2em;text-transform:uppercase;padding:7px 14px">Most chosen</div>
+                </sc-if>
+                <div style="font-family:'Bebas Neue';font-size:26px;letter-spacing:.1em">{{ pl.name }}</div>
+                <div style="display:flex;align-items:baseline;gap:8px;margin:20px 0 6px">
+                  <span style="font-family:Anton;font-size:52px;line-height:1">{{ pl.price }}</span>
+                  <span style="color:var(--mut);font-size:13px">/ month</span>
+                </div>
+                <div style="color:var(--dim);font-size:12px;margin-bottom:26px">{{ pl.billing }}</div>
+                <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:34px">
+                  <sc-for list="{{ pl.features }}" as="f" hint-placeholder-count="4">
+                    <div style="display:flex;gap:10px;align-items:baseline;font-size:13.5px;color:var(--mut)"><span style="color:var(--red);font-weight:700">—</span><span>{{ f }}</span></div>
+                  </sc-for>
+                </div>
+                <button onClick="{{ goSignup }}" style="margin-top:auto;background:{{ pl.btnBg }};color:{{ pl.btnColor }};border:1px solid {{ pl.btnBorder }};padding:15px;font:700 12px Inter;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0">{{ pl.cta }}</button>
+              </div>
+            </sc-for>
+          </div>
+          <div style="text-align:center;margin-top:28px"><a onClick="{{ goPricing }}" style="cursor:pointer;font:600 12px Inter;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line2);padding-bottom:4px" style-hover="color:var(--txt)">Compare all plans</a></div>
+        </div>
+      </section>
+
+      <!-- COACHES PREVIEW -->
+      <section style="border-bottom:1px solid var(--line);padding:96px 0">
+        <div data-reveal style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="display:flex;align-items:end;justify-content:space-between;margin-bottom:52px;gap:24px;flex-wrap:wrap">
+            <div>
+              <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:14px">The corner</div>
+              <h2 style="font-family:'Bebas Neue';font-size:64px;line-height:.95;margin:0;letter-spacing:.02em">Coached by champions</h2>
+            </div>
+            <a onClick="{{ goTrainers }}" style="cursor:pointer;font:700 12px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--txt);text-decoration:none;border-bottom:2px solid var(--red);padding-bottom:6px;white-space:nowrap">All coaches →</a>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)">
+            <sc-for list="{{ trainersList }}" as="t" hint-placeholder-count="4">
+              <div onClick="{{ goTrainers }}" style="background:var(--panel);padding:32px 28px;cursor:pointer;display:flex;flex-direction:column;min-height:210px" style-hover="background:var(--card)">
+                <div style="width:44px;height:44px;background:var(--red);color:#fff;display:grid;place-items:center;font-family:'Bebas Neue';font-size:19px;letter-spacing:.05em;margin-bottom:18px">{{ t.initials }}</div>
+                <div style="font-family:'Bebas Neue';font-size:26px;letter-spacing:.05em;line-height:1">{{ t.name }}</div>
+                <div style="font:600 10.5px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin:8px 0 14px">{{ t.role }}</div>
+                <div style="margin-top:auto;font:600 11px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)">{{ t.record }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESULTS / TESTIMONIALS -->
+      <section style="border-bottom:1px solid var(--line);padding:96px 0;background:var(--panel)">
+        <div data-reveal style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="text-align:center;margin-bottom:56px">
+            <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:14px">Proof</div>
+            <h2 style="font-family:'Bebas Neue';font-size:64px;line-height:.95;margin:0;letter-spacing:.02em">Members don't quit here</h2>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+            <sc-for list="{{ testimonials }}" as="q" hint-placeholder-count="3">
+              <div style="background:var(--card);border:1px solid var(--line);padding:34px 32px;display:flex;flex-direction:column;gap:22px">
+                <div style="font-family:'Bebas Neue';font-size:44px;line-height:0;color:var(--red);height:14px">"</div>
+                <p style="color:var(--mut);font-size:15px;margin:0;text-wrap:pretty;flex:1">{{ q.quote }}</p>
+                <div style="display:flex;align-items:center;gap:14px;border-top:1px solid var(--line);padding-top:20px">
+                  <div style="width:38px;height:38px;background:var(--skel2);display:grid;place-items:center;font:700 12px Inter;flex:none">{{ q.init }}</div>
+                  <div>
+                    <div style="font-weight:600;font-size:13.5px">{{ q.name }}</div>
+                    <div style="color:var(--dim);font-size:12px">{{ q.meta }}</div>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS -->
+      <section style="border-bottom:1px solid var(--line);padding:96px 0">
+        <div data-reveal style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="display:grid;grid-template-columns:.8fr 1.2fr;gap:64px;align-items:start">
+            <div style="position:sticky;top:100px">
+              <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:14px">First 30 days</div>
+              <h2 style="font-family:'Bebas Neue';font-size:58px;line-height:.98;margin:0 0 20px;letter-spacing:.02em">From walk-in<br>to fighter</h2>
+              <p style="color:var(--mut);max-width:360px;margin:0;text-wrap:pretty">Every membership starts the same way — no guesswork, no being thrown to the wolves.</p>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ onboardingSteps }}" as="s" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:90px 1fr;gap:28px;border-top:1px solid var(--line);padding:30px 0">
+                  <div style="font-family:Anton;font-size:44px;line-height:1;color:{{ s.numColor }}">{{ s.num }}</div>
+                  <div>
+                    <div style="font-family:'Bebas Neue';font-size:28px;letter-spacing:.04em;line-height:1;margin-bottom:8px">{{ s.title }}</div>
+                    <p style="color:var(--mut);font-size:14px;margin:0;max-width:520px;text-wrap:pretty">{{ s.desc }}</p>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SHOP STRIP -->
+      <section style="border-bottom:1px solid var(--line);padding:96px 0;background:var(--panel)">
+        <div data-reveal style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="display:flex;align-items:end;justify-content:space-between;margin-bottom:52px;gap:24px;flex-wrap:wrap">
+            <div>
+              <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:14px">Pro shop</div>
+              <h2 style="font-family:'Bebas Neue';font-size:64px;line-height:.95;margin:0;letter-spacing:.02em">Gear that goes rounds</h2>
+            </div>
+            <div style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Members-only pricing</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)">
+            <sc-for list="{{ shopStrip }}" as="p" hint-placeholder-count="4">
+              <div style="background:var(--card);padding:28px 26px;display:flex;flex-direction:column;min-height:190px" style-hover="background:var(--bg)">
+                <div style="font:600 10.5px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)">{{ p.cat }}</div>
+                <div style="font-family:'Bebas Neue';font-size:26px;letter-spacing:.04em;line-height:1.05;margin:12px 0 6px">{{ p.name }}</div>
+                <div style="margin-top:auto;display:flex;justify-content:space-between;align-items:baseline">
+                  <span style="font-family:Anton;font-size:22px">{{ p.price }}</span>
+                  <span style="color:var(--red);font-size:16px">→</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ PREVIEW -->
+      <section style="border-bottom:1px solid var(--line);padding:96px 0">
+        <div data-reveal style="max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:.8fr 1.2fr;gap:64px;align-items:start">
+          <div>
+            <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:14px">Questions</div>
+            <h2 style="font-family:'Bebas Neue';font-size:58px;line-height:.98;margin:0 0 20px;letter-spacing:.02em">Straight<br>answers</h2>
+            <a onClick="{{ goContact }}" style="cursor:pointer;font:700 12px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--txt);text-decoration:none;border-bottom:2px solid var(--red);padding-bottom:6px">Ask us anything →</a>
+          </div>
+          <div>
+            <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="4">
+              <div style="border-top:1px solid var(--line);padding:24px 0">
+                <div style="font-weight:600;font-size:15.5px;margin-bottom:8px">{{ q.q }}</div>
+                <p style="color:var(--mut);font-size:14px;margin:0;max-width:560px;text-wrap:pretty">{{ q.a }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section style="border-bottom:1px solid var(--line);padding:110px 0;position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;background:radial-gradient(700px 400px at 50% 120%, var(--glow), transparent 70%);pointer-events:none"></div>
+        <div data-reveal style="max-width:1280px;margin:0 auto;padding:0 32px;text-align:center">
+          <h2 style="font-family:Anton;font-size:clamp(48px,6.5vw,92px);line-height:.95;margin:0 0 34px;text-transform:uppercase">Your first week<br>is <span style="color:var(--red)">on us.</span></h2>
+          <button onClick="{{ goSignup }}" style="background:var(--red);color:#fff;border:none;padding:18px 42px;font:700 13px Inter;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Claim the free week</button>
+          <div style="color:var(--dim);font-size:12px;margin-top:16px">No card required · Cancel anytime</div>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <!-- ============ ABOUT ============ -->
+  <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
+    <main data-screen-label="About">
+      <section style="border-bottom:1px solid var(--line);padding:90px 0 70px">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:16px">The club</div>
+          <h1 style="font-family:Anton;font-size:clamp(56px,7vw,104px);line-height:.92;margin:0;text-transform:uppercase;max-width:900px">Built by fighters.<br><span style="color:var(--red)">Run like one.</span></h1>
+          <p style="color:var(--mut);max-width:520px;font-size:16px;margin-top:28px;text-wrap:pretty">Founded in 2016 by two retired professionals, Fight Club began as a single ring and a strength rack. Ten years later, the standard hasn't moved an inch.</p>
+        </div>
+      </section>
+      <section style="border-bottom:1px solid var(--line)">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)">
+          <sc-for list="{{ aboutValues }}" as="v" hint-placeholder-count="3">
+            <div style="background:var(--panel);padding:44px 36px">
+              <div style="font-family:'Bebas Neue';font-size:16px;letter-spacing:.2em;color:var(--dim)">{{ v.num }}</div>
+              <div style="font-family:'Bebas Neue';font-size:32px;letter-spacing:.04em;margin:12px 0 10px">{{ v.title }}</div>
+              <p style="color:var(--mut);font-size:14px;margin:0;text-wrap:pretty">{{ v.desc }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+      <section style="border-bottom:1px solid var(--line)">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center">
+          <div style="padding:80px 0">
+            <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:14px">The facility</div>
+            <h2 style="font-family:'Bebas Neue';font-size:54px;line-height:.98;margin:0 0 24px;letter-spacing:.02em">30,000 sq ft of<br>serious equipment</h2>
+            <div style="display:flex;flex-direction:column;gap:16px;max-width:440px">
+              <sc-for list="{{ facilityList }}" as="f" hint-placeholder-count="5">
+                <div style="display:flex;gap:12px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:14px"><span style="color:var(--red);font-weight:700">—</span><span style="color:var(--mut);font-size:14.5px">{{ f }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="position:relative;min-height:560px;margin:64px 0">
+            <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="about-facility" src="https://img.magnific.com/free-photo/full-body-portrait-athletic-shirtless-male-doing-biceps-workouts-with-dumbbells-gym-club_613910-1176.jpg?t=st=1783028466~exp=1783032066~hmac=b037090126ce70edbd959dbe51fc2bc61a098d62fdd909741cb5db6f23f5f363&w=1480" placeholder="Drop facility image — the ring, wide shot" shape="rect" hint-size="100%,560px" style="position:absolute;inset:0;width:100%;height:100%;clip-path:polygon(0 0,100% 0,100% 100%,10% 100%)"></x-import>
+          </div>
+        </div>
+      </section>
+      <section style="border-bottom:1px solid var(--line);padding:96px 0;background:var(--panel)">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;text-align:center">
+          <div style="font-family:'Bebas Neue';font-size:30px;letter-spacing:.08em;color:var(--mut);max-width:760px;margin:0 auto;line-height:1.35">“We don't sell transformation. We sell the <span style="color:var(--red)">environment</span> where it becomes inevitable.”</div>
+          <div style="font:600 11px Inter;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);margin-top:22px">Danny Okafor — Co-founder, former WBC contender</div>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <!-- ============ CLASSES / PROGRAMS ============ -->
+  <sc-if value="{{ isClasses }}" hint-placeholder-val="{{ false }}">
+    <main data-screen-label="Programs">
+      <section style="border-bottom:1px solid var(--line);padding:90px 0 70px">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:end;gap:40px">
+          <div>
+            <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:16px">Programs</div>
+            <h1 style="font-family:Anton;font-size:clamp(56px,7vw,104px);line-height:.92;margin:0;text-transform:uppercase">Six disciplines.<br>One standard.</h1>
+          </div>
+          <p style="color:var(--mut);max-width:340px;font-size:15px;text-wrap:pretty">Every class is capped at 16 athletes and led by a competition-tested coach.</p>
+        </div>
+      </section>
+      <section style="border-bottom:1px solid var(--line)">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line)">
+          <sc-for list="{{ classesList }}" as="c" hint-placeholder-count="6">
+            <div style="background:var(--panel);padding:44px 40px;display:flex;flex-direction:column;min-height:250px" style-hover="background:var(--card)">
+              <div style="display:flex;justify-content:space-between;align-items:baseline">
+                <div style="font-family:'Bebas Neue';font-size:16px;letter-spacing:.2em;color:var(--dim)">{{ c.num }}</div>
+                <div style="font:600 10.5px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--red);border:1px solid var(--red);padding:5px 10px">{{ c.tag }}</div>
+              </div>
+              <div style="font-family:'Bebas Neue';font-size:42px;letter-spacing:.03em;margin:16px 0 10px;line-height:1">{{ c.name }}</div>
+              <p style="color:var(--mut);font-size:14px;margin:0 0 26px;max-width:440px;text-wrap:pretty">{{ c.desc }}</p>
+              <div style="margin-top:auto;display:flex;gap:26px;font:600 11px Inter;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)">
+                <span>{{ c.duration }}</span><span>{{ c.freq }}</span><span>{{ c.level }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+      <section style="border-bottom:1px solid var(--line);padding:96px 0">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="display:flex;align-items:end;justify-content:space-between;margin-bottom:44px">
+            <h2 style="font-family:'Bebas Neue';font-size:56px;line-height:.95;margin:0;letter-spacing:.02em">This week on the floor</h2>
+            <div style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Mon 29 Jun — Sun 5 Jul</div>
+          </div>
+          <div style="border:1px solid var(--line)">
+            <div style="display:grid;grid-template-columns:110px 1fr 1fr 180px 120px;background:var(--panel);border-bottom:1px solid var(--line);font:700 10.5px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">
+              <div style="padding:14px 20px">Time</div><div style="padding:14px 20px">Class</div><div style="padding:14px 20px">Coach</div><div style="padding:14px 20px">Room</div><div style="padding:14px 20px;text-align:right">Spots</div>
+            </div>
+            <sc-for list="{{ scheduleRows }}" as="r" hint-placeholder-count="7">
+              <div style="display:grid;grid-template-columns:110px 1fr 1fr 180px 120px;border-bottom:1px solid var(--line);align-items:center;background:var(--bg)" style-hover="background:var(--panel)">
+                <div style="padding:16px 20px;font-family:'Bebas Neue';font-size:19px;letter-spacing:.06em">{{ r.time }}</div>
+                <div style="padding:16px 20px;font-weight:600;font-size:14px">{{ r.title }}</div>
+                <div style="padding:16px 20px;color:var(--mut);font-size:13.5px">{{ r.coach }}</div>
+                <div style="padding:16px 20px;color:var(--dim);font:600 11px Inter;letter-spacing:.14em;text-transform:uppercase">{{ r.room }}</div>
+                <div style="padding:16px 20px;text-align:right;font:600 12px Inter;color:{{ r.spotsColor }}">{{ r.spots }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <!-- ============ TRAINERS ============ -->
+  <sc-if value="{{ isTrainers }}" hint-placeholder-val="{{ false }}">
+    <main data-screen-label="Coaches">
+      <section style="border-bottom:1px solid var(--line);padding:90px 0 70px">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:16px">The corner</div>
+          <h1 style="font-family:Anton;font-size:clamp(56px,7vw,104px);line-height:.92;margin:0;text-transform:uppercase">Coaches who've<br><span style="color:var(--red)">been hit back.</span></h1>
+        </div>
+      </section>
+      <section style="border-bottom:1px solid var(--line);padding:80px 0">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px">
+          <sc-for list="{{ trainersList }}" as="t" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column">
+              <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="{{ t.imgId }}" src="{{ t.imgSrc }}" placeholder="{{ t.imgHint }}" shape="rect" hint-size="100%,320px" style="width:100%;height:320px;display:block;filter:grayscale(1) contrast(1.05)"></x-import>
+              <div style="border:1px solid var(--line);border-top:3px solid var(--red);padding:22px 22px 24px;background:var(--panel);flex:1">
+                <div style="font-family:'Bebas Neue';font-size:28px;letter-spacing:.05em;line-height:1">{{ t.name }}</div>
+                <div style="font:600 10.5px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin:8px 0 12px">{{ t.role }}</div>
+                <p style="color:var(--mut);font-size:13px;margin:0 0 16px;text-wrap:pretty">{{ t.bio }}</p>
+                <div style="font:600 11px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)">{{ t.record }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+      <section style="padding:80px 0;border-bottom:1px solid var(--line);background:var(--panel)">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center;gap:40px">
+          <h2 style="font-family:'Bebas Neue';font-size:46px;line-height:1;margin:0;letter-spacing:.02em">Want a coach in your corner?</h2>
+          <button onClick="{{ goSignup }}" style="background:var(--red);color:#fff;border:none;padding:17px 34px;font:700 13px Inter;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;white-space:nowrap;border-radius:0" style-hover="background:#ff1a25">Book an assessment</button>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <!-- ============ PRICING ============ -->
+  <sc-if value="{{ isPricing }}" hint-placeholder-val="{{ false }}">
+    <main data-screen-label="Membership">
+      <section style="border-bottom:1px solid var(--line);padding:90px 0 60px">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;text-align:center">
+          <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:16px">Membership</div>
+          <h1 style="font-family:Anton;font-size:clamp(56px,7vw,104px);line-height:.92;margin:0;text-transform:uppercase">One club.<br>Three ways in.</h1>
+          <div style="display:inline-flex;border:1px solid var(--line2);margin-top:40px">
+            <button onClick="{{ setMonthly }}" style="background:{{ monthlyBg }};color:{{ monthlyColor }};border:none;padding:12px 26px;font:700 12px Inter;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0">Monthly</button>
+            <button onClick="{{ setAnnual }}" style="background:{{ annualBg }};color:{{ annualColor }};border:none;padding:12px 26px;font:700 12px Inter;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0">Annual −15%</button>
+          </div>
+        </div>
+      </section>
+      <section style="border-bottom:1px solid var(--line);padding:70px 0">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:stretch">
+          <sc-for list="{{ plans }}" as="pl" hint-placeholder-count="3">
+            <div style="background:var(--card);border:1px solid {{ pl.borderColor }};padding:40px 34px;display:flex;flex-direction:column;position:relative">
+              <sc-if value="{{ pl.featured }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:-1px;right:-1px;background:var(--red);color:#fff;font:700 10px Inter;letter-spacing:.2em;text-transform:uppercase;padding:7px 14px">Most chosen</div>
+              </sc-if>
+              <div style="font-family:'Bebas Neue';font-size:26px;letter-spacing:.1em">{{ pl.name }}</div>
+              <div style="display:flex;align-items:baseline;gap:8px;margin:20px 0 6px">
+                <span style="font-family:Anton;font-size:52px;line-height:1">{{ pl.price }}</span>
+                <span style="color:var(--mut);font-size:13px">/ month</span>
+              </div>
+              <div style="color:var(--dim);font-size:12px;margin-bottom:26px">{{ pl.billing }}</div>
+              <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:34px">
+                <sc-for list="{{ pl.features }}" as="f" hint-placeholder-count="4">
+                  <div style="display:flex;gap:10px;align-items:baseline;font-size:13.5px;color:var(--mut)"><span style="color:var(--red);font-weight:700">—</span><span>{{ f }}</span></div>
+                </sc-for>
+              </div>
+              <button onClick="{{ goSignup }}" style="margin-top:auto;background:{{ pl.btnBg }};color:{{ pl.btnColor }};border:1px solid {{ pl.btnBorder }};padding:15px;font:700 12px Inter;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0">{{ pl.cta }}</button>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+      <section style="border-bottom:1px solid var(--line);padding:90px 0">
+        <div style="max-width:840px;margin:0 auto;padding:0 32px">
+          <h2 style="font-family:'Bebas Neue';font-size:48px;letter-spacing:.02em;margin:0 0 36px">Straight answers</h2>
+          <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="4">
+            <div style="border-top:1px solid var(--line);padding:24px 0">
+              <div style="font-weight:600;font-size:15.5px;margin-bottom:8px">{{ q.q }}</div>
+              <p style="color:var(--mut);font-size:14px;margin:0;max-width:640px;text-wrap:pretty">{{ q.a }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <!-- ============ BLOG ============ -->
+  <sc-if value="{{ isBlog }}" hint-placeholder-val="{{ false }}">
+    <main data-screen-label="Journal">
+      <section style="border-bottom:1px solid var(--line);padding:90px 0 70px">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:16px">The journal</div>
+          <h1 style="font-family:Anton;font-size:clamp(56px,7vw,104px);line-height:.92;margin:0;text-transform:uppercase">Notes from<br>the corner.</h1>
+        </div>
+      </section>
+      <section style="border-bottom:1px solid var(--line);padding:80px 0">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:24px;margin-bottom:24px">
+            <div style="border:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column">
+              <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="blog-featured" src="https://img.magnific.com/free-photo/man-moving-giant-tire-wheel-gym_651396-296.jpg?t=st=1783028462~exp=1783032062~hmac=86810ad1231ce10bb27e98a1385831743eb1c8bbe5a69e39afc6ca7d5b077d12&w=1480" placeholder="Drop featured story image" shape="rect" hint-size="100%,340px" style="width:100%;height:340px;display:block"></x-import>
+              <div style="padding:32px 36px 36px">
+                <div style="display:flex;gap:16px;font:600 10.5px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:14px"><span>Fight camp</span><span style="color:var(--dim)">Jun 28, 2026</span></div>
+                <div style="font-family:'Bebas Neue';font-size:40px;letter-spacing:.02em;line-height:1.02;margin-bottom:12px">Inside an 8-week fight camp: what actually changes</div>
+                <p style="color:var(--mut);font-size:14.5px;margin:0;max-width:560px;text-wrap:pretty">Volume, sleep, sparring rounds and the psychology of the last two weeks — our head coach breaks down a real camp, week by week.</p>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:24px">
+              <sc-for list="{{ blogSide }}" as="b" hint-placeholder-count="3">
+                <div style="border:1px solid var(--line);background:var(--panel);padding:26px 28px;flex:1" style-hover="background:var(--card)">
+                  <div style="display:flex;gap:14px;font:600 10.5px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:12px"><span>{{ b.tag }}</span><span style="color:var(--dim)">{{ b.date }}</span></div>
+                  <div style="font-family:'Bebas Neue';font-size:26px;letter-spacing:.03em;line-height:1.05">{{ b.title }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+            <sc-for list="{{ blogGrid }}" as="b" hint-placeholder-count="3">
+              <div style="border:1px solid var(--line);background:var(--panel);padding:28px 30px" style-hover="background:var(--card)">
+                <div style="display:flex;gap:14px;font:600 10.5px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:12px"><span>{{ b.tag }}</span><span style="color:var(--dim)">{{ b.date }}</span></div>
+                <div style="font-family:'Bebas Neue';font-size:26px;letter-spacing:.03em;line-height:1.05;margin-bottom:10px">{{ b.title }}</div>
+                <p style="color:var(--mut);font-size:13.5px;margin:0;text-wrap:pretty">{{ b.excerpt }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <!-- ============ CONTACT ============ -->
+  <sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+    <main data-screen-label="Contact">
+      <section style="border-bottom:1px solid var(--line);padding:90px 0 70px">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px">
+          <div style="font:600 11px Inter;letter-spacing:.34em;text-transform:uppercase;color:var(--red);margin-bottom:16px">Contact</div>
+          <h1 style="font-family:Anton;font-size:clamp(56px,7vw,104px);line-height:.92;margin:0;text-transform:uppercase">Come see<br>the floor.</h1>
+        </div>
+      </section>
+      <section style="border-bottom:1px solid var(--line);padding:80px 0">
+        <div style="max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1fr 1fr;gap:64px">
+          <div>
+            <div style="display:flex;flex-direction:column;gap:18px;max-width:460px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                <label style="display:flex;flex-direction:column;gap:8px"><span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">Name</span><input placeholder="Your name" style="background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:14px 16px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                <label style="display:flex;flex-direction:column;gap:8px"><span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">Email</span><input type="email" placeholder="you@example.com" style="background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:14px 16px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+              </div>
+              <label style="display:flex;flex-direction:column;gap:8px"><span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">Message</span><textarea rows="5" placeholder="Tell us what you're training for" style="background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:14px 16px;font:400 14px Inter;outline:none;resize:vertical;border-radius:0" style-focus="border-color:var(--red)"></textarea></label>
+              <button style="background:var(--red);color:#fff;border:none;padding:16px;font:700 13px Inter;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Send message</button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0;border:1px solid var(--line)">
+            <sc-for list="{{ contactRows }}" as="c" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:160px 1fr;border-bottom:1px solid var(--line)">
+                <div style="padding:22px 24px;font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);border-right:1px solid var(--line)">{{ c.k }}</div>
+                <div style="padding:22px 24px;color:var(--mut);font-size:14.5px">{{ c.v }}</div>
+              </div>
+            </sc-for>
+            <div style="flex:1;min-height:200px;background:repeating-linear-gradient(45deg,var(--panel),var(--panel) 12px,var(--card) 12px,var(--card) 24px);display:grid;place-items:center">
+              <div style="font:600 11px Inter;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)">Map — 4 Mercer Street</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+
+  <!-- SCROLL TO TOP -->
+  <sc-if value="{{ showTopBtn }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ scrollTop }}" aria-label="Scroll to top" title="Back to top" style="position:fixed;right:28px;bottom:28px;z-index:60;width:48px;height:48px;background:var(--red);color:#fff;border:none;cursor:pointer;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);animation:fcUp .35s cubic-bezier(.2,.7,.2,1) both;border-radius:0" style-hover="background:#ff1a25">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg>
+    </button>
+  </sc-if>
+
+  <!-- ============ FOOTER ============ -->
+  <sc-if value="{{ isPublic }}" hint-placeholder-val="{{ true }}">
+    <footer style="background:var(--bg)">
+      <div style="max-width:1280px;margin:0 auto;padding:72px 32px 40px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:48px">
+        <div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+            <div style="width:32px;height:32px;background:var(--txt);color:var(--inv);display:grid;place-items:center;font-family:'Bebas Neue';font-size:17px;clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)">FC</div>
+            <div style="font-family:'Bebas Neue';font-size:20px;letter-spacing:.14em">FIGHT CLUB</div>
+          </div>
+          <p style="color:var(--dim);font-size:13px;max-width:280px;margin:0">Premium combat training. One location, one standard. 4 Mercer Street, Downtown.</p>
+        </div>
+        <sc-for list="{{ footerCols }}" as="col" hint-placeholder-count="3">
+          <div>
+            <div style="font:700 11px Inter;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);margin-bottom:16px">{{ col.title }}</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ col.links }}" as="l" hint-placeholder-count="4">
+                <a onClick="{{ l.on }}" style="cursor:pointer;color:var(--mut);font-size:13.5px;text-decoration:none" style-hover="color:var(--txt)">{{ l.label }}</a>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="border-top:1px solid var(--line)">
+        <div style="max-width:1280px;margin:0 auto;padding:22px 32px;display:flex;justify-content:space-between;color:var(--dim);font-size:12px">
+          <span>© 2026 Fight Club Athletics Inc.</span>
+          <span style="letter-spacing:.2em;text-transform:uppercase;font-weight:600">Earn every round</span>
+        </div>
+      </div>
+    </footer>
+  </sc-if>
+
+  <!-- ============ AUTH ============ -->
+  <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Auth" style="min-height:100vh;display:grid;grid-template-columns:1fr 1fr">
+      <div style="position:relative;overflow:hidden;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;padding:48px">
+        <div style="position:absolute;inset:0;background:radial-gradient(700px 500px at 20% 90%, var(--glow), transparent 65%);pointer-events:none"></div>
+        <a onClick="{{ goHome }}" style="display:flex;align-items:center;gap:12px;cursor:pointer;position:relative">
+          <div style="width:36px;height:36px;background:var(--txt);color:var(--inv);display:grid;place-items:center;font-family:'Bebas Neue';font-size:19px;clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)">FC</div>
+          <div style="font-family:'Bebas Neue';font-size:22px;letter-spacing:.14em">FIGHT CLUB</div>
+        </a>
+        <div style="position:relative">
+          <div style="font-family:Anton;font-size:clamp(42px,4.5vw,72px);line-height:.95;text-transform:uppercase">The hardest<br>part is<br><span style="color:var(--red)">walking in.</span></div>
+          <p style="color:var(--mut);max-width:360px;margin-top:22px">Members get full access to the floor, coached classes, and their personal training dashboard.</p>
+        </div>
+        <div style="color:var(--dim);font-size:12px;position:relative">4 Mercer Street · Open 05:30 – 23:00</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;padding:48px">
+        <div style="width:100%;max-width:400px">
+
+          <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+            <div data-screen-label="Sign in">
+              <h1 style="font-family:'Bebas Neue';font-size:44px;letter-spacing:.04em;margin:0 0 6px">Sign in</h1>
+              <p style="color:var(--mut);font-size:14px;margin:0 0 34px">Welcome back to the club.</p>
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <label style="display:flex;flex-direction:column;gap:8px"><span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">Email</span><input type="email" placeholder="you@example.com" style="background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:14px 16px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                <label style="display:flex;flex-direction:column;gap:8px"><span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">Password</span><input type="password" placeholder="••••••••" style="background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:14px 16px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                <div style="display:flex;justify-content:flex-end"><a onClick="{{ goForgot }}" style="cursor:pointer;color:var(--mut);font-size:12.5px;text-decoration:none" style-hover="color:var(--txt)">Forgot password?</a></div>
+                <button onClick="{{ loginMember }}" style="background:var(--red);color:#fff;border:none;padding:16px;font:700 13px Inter;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Sign in</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;margin:30px 0 18px"><div style="flex:1;height:1px;background:var(--line)"></div><span style="font:600 10px Inter;letter-spacing:.2em;color:var(--dim);text-transform:uppercase">Demo accounts</span><div style="flex:1;height:1px;background:var(--line)"></div></div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+                <button onClick="{{ loginMember }}" style="background:transparent;border:1px solid var(--line2);color:var(--txt);padding:12px 8px;font:600 11px Inter;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="border-color:var(--red);color:var(--red)">Member</button>
+                <button onClick="{{ loginTrainer }}" style="background:transparent;border:1px solid var(--line2);color:var(--txt);padding:12px 8px;font:600 11px Inter;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="border-color:var(--red);color:var(--red)">Trainer</button>
+                <button onClick="{{ loginAdmin }}" style="background:transparent;border:1px solid var(--line2);color:var(--txt);padding:12px 8px;font:600 11px Inter;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="border-color:var(--red);color:var(--red)">Admin</button>
+              </div>
+              <p style="color:var(--dim);font-size:13px;margin-top:26px;text-align:center">No account? <a onClick="{{ goSignup }}" style="cursor:pointer;color:var(--txt);text-decoration:underline">Join the club</a></p>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Sign up">
+              <h1 style="font-family:'Bebas Neue';font-size:44px;letter-spacing:.04em;margin:0 0 6px">Join the club</h1>
+              <p style="color:var(--mut);font-size:14px;margin:0 0 34px">Start with a free week on the floor.</p>
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                  <label style="display:flex;flex-direction:column;gap:8px"><span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">First name</span><input placeholder="Marcus" style="background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:14px 16px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                  <label style="display:flex;flex-direction:column;gap:8px"><span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">Last name</span><input placeholder="Reid" style="background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:14px 16px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                </div>
+                <label style="display:flex;flex-direction:column;gap:8px"><span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">Email</span><input type="email" placeholder="you@example.com" style="background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:14px 16px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                <label style="display:flex;flex-direction:column;gap:8px"><span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">Password</span><input type="password" placeholder="8+ characters" style="background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:14px 16px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                <button onClick="{{ loginMember }}" style="background:var(--red);color:#fff;border:none;padding:16px;font:700 13px Inter;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Create account</button>
+                <p style="color:var(--dim);font-size:12px;margin:0;text-align:center">By joining you accept the club rules and terms.</p>
+              </div>
+              <p style="color:var(--dim);font-size:13px;margin-top:26px;text-align:center">Already a member? <a onClick="{{ goLogin }}" style="cursor:pointer;color:var(--txt);text-decoration:underline">Sign in</a></p>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isForgot }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Forgot password">
+              <h1 style="font-family:'Bebas Neue';font-size:44px;letter-spacing:.04em;margin:0 0 6px">Reset password</h1>
+              <p style="color:var(--mut);font-size:14px;margin:0 0 34px">We'll email you a reset link.</p>
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <label style="display:flex;flex-direction:column;gap:8px"><span style="font:600 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)">Email</span><input type="email" placeholder="you@example.com" style="background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:14px 16px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                <button onClick="{{ sendReset }}" style="background:var(--red);color:#fff;border:none;padding:16px;font:700 13px Inter;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Send reset link</button>
+                <sc-if value="{{ resetSent }}" hint-placeholder-val="{{ false }}">
+                  <div style="border:1px solid var(--line2);border-left:3px solid var(--red);padding:14px 16px;color:var(--mut);font-size:13.5px;background:var(--card)">If an account exists for that address, a reset link is on its way.</div>
+                </sc-if>
+              </div>
+              <p style="color:var(--dim);font-size:13px;margin-top:26px;text-align:center"><a onClick="{{ goLogin }}" style="cursor:pointer;color:var(--txt);text-decoration:underline">Back to sign in</a></p>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ DASHBOARD ============ -->
+  <sc-if value="{{ inDash }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Dashboard" style="display:grid;grid-template-columns:248px 1fr;min-height:100vh;align-items:start">
+
+      <!-- SIDEBAR -->
+      <aside style="position:sticky;top:0;height:100vh;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column">
+        <a onClick="{{ goHome }}" style="display:flex;align-items:center;gap:11px;cursor:pointer;padding:22px 22px 20px;border-bottom:1px solid var(--line)">
+          <div style="width:32px;height:32px;background:var(--txt);color:var(--inv);display:grid;place-items:center;font-family:'Bebas Neue';font-size:17px;clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)">FC</div>
+          <div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:.14em">FIGHT CLUB</div>
+        </a>
+        <div style="padding:16px 22px 8px;font:700 10px Inter;letter-spacing:.26em;text-transform:uppercase;color:var(--dim)">{{ roleTitle }}</div>
+        <nav style="display:flex;flex-direction:column;padding:6px 12px;gap:2px">
+          <sc-for list="{{ sideNav }}" as="n" hint-placeholder-count="6">
+            <a onClick="{{ n.on }}" style="display:flex;align-items:center;gap:14px;padding:11px 12px;cursor:pointer;background:{{ n.bg }};border-left:2px solid {{ n.border }};text-decoration:none">
+              <span style="font-family:'Bebas Neue';font-size:13px;letter-spacing:.1em;color:var(--dim);width:18px">{{ n.num }}</span>
+              <span style="font:600 12.5px Inter;letter-spacing:.08em;text-transform:uppercase;color:{{ n.color }}">{{ n.label }}</span>
+            </a>
+          </sc-for>
+        </nav>
+        <div style="margin-top:auto;border-top:1px solid var(--line);padding:16px 22px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:34px;height:34px;background:var(--red);color:#fff;display:grid;place-items:center;font:700 12px Inter">{{ userInitials }}</div>
+            <div style="min-width:0">
+              <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ userName }}</div>
+              <div style="color:var(--dim);font-size:11px">{{ userPlan }}</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button onClick="{{ toggleTheme }}" style="flex:1;background:transparent;border:1px solid var(--line2);color:var(--mut);padding:8px;font:600 11px Inter;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="color:var(--txt)">{{ themeIcon }} Theme</button>
+            <button onClick="{{ logout }}" style="flex:1;background:transparent;border:1px solid var(--line2);color:var(--mut);padding:8px;font:600 11px Inter;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="color:var(--red);border-color:var(--red)">Sign out</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <div style="min-width:0">
+        <!-- TOPBAR -->
+        <div style="position:sticky;top:0;z-index:30;background:color-mix(in srgb, var(--bg) 88%, transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:20px;padding:0 28px;height:64px">
+          <div style="font-family:'Bebas Neue';font-size:26px;letter-spacing:.06em">{{ tabTitle }}</div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+            <div style="display:flex;border:1px solid var(--line2)" title="Preview page states">
+              <sc-for list="{{ vsOptions }}" as="o" hint-placeholder-count="4">
+                <button onClick="{{ o.on }}" style="background:{{ o.bg }};color:{{ o.color }};border:none;padding:7px 12px;font:600 10.5px Inter;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:0">{{ o.label }}</button>
+              </sc-for>
+            </div>
+            <div style="position:relative">
+              <button onClick="{{ toggleDrawer }}" style="width:36px;height:36px;background:transparent;border:1px solid var(--line2);color:var(--mut);cursor:pointer;display:grid;place-items:center;position:relative;border-radius:0" style-hover="color:var(--txt)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+                <span style="position:absolute;top:6px;right:7px;width:7px;height:7px;background:var(--red);border-radius:50%;animation:fcPulse 2s infinite"></span>
+              </button>
+              <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;right:0;top:44px;width:340px;background:var(--card);border:1px solid var(--line2);box-shadow:0 20px 50px rgba(0,0,0,.45);z-index:40">
+                  <div style="padding:14px 18px;border-bottom:1px solid var(--line);font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Notifications</div>
+                  <sc-for list="{{ notifications }}" as="nt" hint-placeholder-count="4">
+                    <div style="padding:14px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start" style-hover="background:var(--panel)">
+                      <span style="width:7px;height:7px;background:{{ nt.dot }};border-radius:50%;margin-top:6px;flex:none"></span>
+                      <div>
+                        <div style="font-size:13px;font-weight:600">{{ nt.title }}</div>
+                        <div style="color:var(--mut);font-size:12.5px;margin-top:2px">{{ nt.body }}</div>
+                        <div style="color:var(--dim);font-size:11px;margin-top:4px">{{ nt.time }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div style="padding:28px;display:flex;flex-direction:column;gap:24px;max-width:1200px">
+
+          <!-- LOADING / SKELETON -->
+          <sc-if value="{{ vsLoading }}" hint-placeholder-val="{{ false }}">
+            <div aria-busy="true" aria-label="Loading" style="display:flex;flex-direction:column;gap:24px">
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+                <sc-for list="{{ skel4 }}" as="k" hint-placeholder-count="4">
+                  <div style="height:110px;background:linear-gradient(90deg,var(--skel) 25%,var(--skel2) 50%,var(--skel) 75%);background-size:200% 100%;animation:fcShimmer 1.4s linear infinite"></div>
+                </sc-for>
+              </div>
+              <div style="height:320px;background:linear-gradient(90deg,var(--skel) 25%,var(--skel2) 50%,var(--skel) 75%);background-size:200% 100%;animation:fcShimmer 1.4s linear infinite"></div>
+              <div style="height:220px;background:linear-gradient(90deg,var(--skel) 25%,var(--skel2) 50%,var(--skel) 75%);background-size:200% 100%;animation:fcShimmer 1.4s linear infinite"></div>
+            </div>
+          </sc-if>
+
+          <!-- EMPTY -->
+          <sc-if value="{{ vsEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px dashed var(--line2);padding:90px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px">
+              <div style="width:52px;height:52px;border:1px solid var(--line2);display:grid;place-items:center;color:var(--dim)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="1"></rect><path d="M3 9h18"></path></svg></div>
+              <div style="font-family:'Bebas Neue';font-size:30px;letter-spacing:.05em">Nothing here yet</div>
+              <p style="color:var(--mut);font-size:14px;max-width:340px;margin:0">When there's data for this view it will show up here. Start by booking a class or logging a session.</p>
+              <button onClick="{{ setVsReady }}" style="margin-top:8px;background:var(--red);color:#fff;border:none;padding:12px 24px;font:700 12px Inter;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0">Get started</button>
+            </div>
+          </sc-if>
+
+          <!-- ERROR -->
+          <sc-if value="{{ vsError }}" hint-placeholder-val="{{ false }}">
+            <div role="alert" style="border:1px solid var(--red);padding:90px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;background:var(--card)">
+              <div style="width:52px;height:52px;border:1px solid var(--red);display:grid;place-items:center;color:var(--red)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg></div>
+              <div style="font-family:'Bebas Neue';font-size:30px;letter-spacing:.05em">Something broke</div>
+              <p style="color:var(--mut);font-size:14px;max-width:360px;margin:0">We couldn't load this view. It's on us — try again, and if it keeps happening the front desk can help.</p>
+              <button onClick="{{ setVsReady }}" style="margin-top:8px;background:transparent;color:var(--txt);border:1px solid var(--line2);padding:12px 24px;font:700 12px Inter;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="border-color:var(--txt)">Retry</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ vsReady }}" hint-placeholder-val="{{ true }}">
+
+            <!-- ===== OVERVIEW (all roles: stat cards) ===== -->
+            <sc-if value="{{ secOverview }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+                <sc-for list="{{ dashStats }}" as="s" hint-placeholder-count="4">
+                  <div style="background:var(--card);border:1px solid var(--line);padding:20px 22px">
+                    <div style="font:600 10.5px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)">{{ s.label }}</div>
+                    <div style="font-family:'Bebas Neue';font-size:42px;line-height:1.05;margin-top:8px">{{ s.value }}</div>
+                    <div style="font:600 11.5px Inter;color:{{ s.deltaColor }};margin-top:4px">{{ s.delta }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- ===== MEMBER OVERVIEW ===== -->
+            <sc-if value="{{ mOverview }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px">
+                <div style="background:var(--card);border:1px solid var(--line);padding:24px">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:24px">
+                    <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Training volume — hrs / week</div>
+                    <div style="font:600 11px Inter;color:var(--mut)">Last 12 weeks</div>
+                  </div>
+                  <div style="display:flex;align-items:flex-end;gap:8px;height:200px">
+                    <sc-for list="{{ barsWeek }}" as="b" hint-placeholder-count="12">
+                      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:8px">
+                        <div title="{{ b.tip }}" style="height:{{ b.h }};background:{{ b.color }};min-height:4px"></div>
+                        <div style="text-align:center;font:600 10px Inter;color:var(--dim)">{{ b.label }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="background:var(--card);border:1px solid var(--line);padding:24px;display:flex;flex-direction:column">
+                  <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:18px">Up next</div>
+                  <div style="display:flex;flex-direction:column;gap:0">
+                    <sc-for list="{{ upNext }}" as="u" hint-placeholder-count="3">
+                      <div style="display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);align-items:center">
+                        <div style="font-family:'Bebas Neue';font-size:20px;letter-spacing:.04em;color:var(--red);width:52px">{{ u.time }}</div>
+                        <div style="flex:1;min-width:0">
+                          <div style="font-weight:600;font-size:13.5px">{{ u.title }}</div>
+                          <div style="color:var(--dim);font-size:12px">{{ u.sub }}</div>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <button onClick="{{ goBookings }}" style="margin-top:auto;background:transparent;border:1px solid var(--line2);color:var(--txt);padding:12px;font:700 11px Inter;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="border-color:var(--txt)">Book a class</button>
+                </div>
+              </div>
+              <div style="background:var(--card);border:1px solid var(--line);padding:24px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center">
+                <div>
+                  <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:10px">Current program</div>
+                  <div style="font-family:'Bebas Neue';font-size:32px;letter-spacing:.04em;line-height:1">STRENGTH BLOCK C — WEEK 3 OF 8</div>
+                  <div style="color:var(--mut);font-size:13.5px;margin-top:8px">Coach Volkov · Next assessment Jul 24 · Focus: max strength</div>
+                  <div style="margin-top:16px;height:6px;background:var(--skel);max-width:420px"><div style="width:37%;height:100%;background:var(--red)"></div></div>
+                </div>
+                <button onClick="{{ goWorkouts }}" style="background:var(--red);color:#fff;border:none;padding:14px 26px;font:700 12px Inter;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Open program</button>
+              </div>
+            </sc-if>
+
+            <!-- ===== MEMBER WORKOUTS ===== -->
+            <sc-if value="{{ mWorkouts }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ workoutDays }}" as="d" hint-placeholder-count="3">
+                <div style="background:var(--card);border:1px solid var(--line)">
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--line)">
+                    <div style="display:flex;align-items:baseline;gap:16px">
+                      <div style="font-family:'Bebas Neue';font-size:24px;letter-spacing:.05em">{{ d.day }}</div>
+                      <div style="color:var(--dim);font:600 11px Inter;letter-spacing:.16em;text-transform:uppercase">{{ d.focus }}</div>
+                    </div>
+                    <div style="font:600 11px Inter;letter-spacing:.14em;text-transform:uppercase;color:{{ d.statusColor }};border:1px solid {{ d.statusColor }};padding:5px 12px">{{ d.status }}</div>
+                  </div>
+                  <sc-for list="{{ d.exercises }}" as="e" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:1fr 130px 130px 110px;padding:13px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                      <div style="font-weight:600;font-size:13.5px">{{ e.name }}</div>
+                      <div style="color:var(--mut);font-size:13px">{{ e.sets }}</div>
+                      <div style="color:var(--mut);font-size:13px">{{ e.load }}</div>
+                      <div style="color:var(--dim);font:600 11px Inter;letter-spacing:.1em;text-transform:uppercase;text-align:right">{{ e.tempo }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </sc-if>
+
+            <!-- ===== MEMBER NUTRITION ===== -->
+            <sc-if value="{{ mNutrition }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+                <sc-for list="{{ macros }}" as="m" hint-placeholder-count="4">
+                  <div style="background:var(--card);border:1px solid var(--line);padding:20px 22px">
+                    <div style="font:600 10.5px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)">{{ m.label }}</div>
+                    <div style="display:flex;align-items:baseline;gap:6px;margin-top:8px">
+                      <span style="font-family:'Bebas Neue';font-size:40px;line-height:1">{{ m.value }}</span>
+                      <span style="color:var(--dim);font-size:12px">/ {{ m.target }}</span>
+                    </div>
+                    <div style="margin-top:12px;height:5px;background:var(--skel)"><div style="width:{{ m.pct }};height:100%;background:{{ m.color }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="background:var(--card);border:1px solid var(--line)">
+                <div style="padding:18px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+                  <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Today's plan — fight-weight cut, 2,450 kcal</div>
+                  <div style="color:var(--dim);font-size:12px">Set by Coach Volkov</div>
+                </div>
+                <sc-for list="{{ meals }}" as="m" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:110px 1fr 220px 90px;padding:15px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                    <div style="font-family:'Bebas Neue';font-size:18px;letter-spacing:.06em;color:var(--red)">{{ m.time }}</div>
+                    <div><div style="font-weight:600;font-size:13.5px">{{ m.name }}</div><div style="color:var(--dim);font-size:12px">{{ m.detail }}</div></div>
+                    <div style="color:var(--mut);font-size:12.5px">{{ m.macros }}</div>
+                    <div style="text-align:right;font:600 12px Inter;color:var(--mut)">{{ m.kcal }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- ===== MEMBER BOOKINGS ===== -->
+            <sc-if value="{{ mBookings }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">
+                <sc-for list="{{ weekStrip }}" as="w" hint-placeholder-count="7">
+                  <div style="background:{{ w.bg }};border:1px solid {{ w.border }};padding:14px 10px;text-align:center;cursor:pointer">
+                    <div style="font:600 10px Inter;letter-spacing:.16em;text-transform:uppercase;color:{{ w.sub }}">{{ w.dow }}</div>
+                    <div style="font-family:'Bebas Neue';font-size:26px;margin-top:2px;color:{{ w.fg }}">{{ w.date }}</div>
+                    <div style="font-size:10.5px;color:{{ w.sub }};margin-top:2px">{{ w.count }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="background:var(--card);border:1px solid var(--line)">
+                <div style="padding:18px 24px;border-bottom:1px solid var(--line);font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Your bookings — Thu Jul 2</div>
+                <sc-for list="{{ bookings }}" as="b" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:90px 1fr 160px 130px 110px;padding:15px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                    <div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:.05em">{{ b.time }}</div>
+                    <div><div style="font-weight:600;font-size:13.5px">{{ b.title }}</div><div style="color:var(--dim);font-size:12px">{{ b.coach }}</div></div>
+                    <div style="color:var(--dim);font:600 11px Inter;letter-spacing:.12em;text-transform:uppercase">{{ b.room }}</div>
+                    <div style="font:600 11px Inter;letter-spacing:.12em;text-transform:uppercase;color:{{ b.statusColor }}">{{ b.status }}</div>
+                    <button style="background:transparent;border:1px solid var(--line2);color:var(--mut);padding:8px;font:600 10.5px Inter;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="color:var(--red);border-color:var(--red)">{{ b.action }}</button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- ===== MEMBER PAYMENTS ===== -->
+            <sc-if value="{{ mPayments }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div style="background:linear-gradient(135deg,#141414,#1e0507);border:1px solid var(--line2);padding:28px;color:#f5f5f5;position:relative;overflow:hidden">
+                  <div style="position:absolute;right:-30px;top:-30px;width:160px;height:160px;background:radial-gradient(closest-side,rgba(229,9,20,.25),transparent)"></div>
+                  <div style="display:flex;justify-content:space-between;align-items:start">
+                    <div style="font-family:'Bebas Neue';font-size:22px;letter-spacing:.12em">FIGHTER</div>
+                    <div style="width:28px;height:28px;background:#f5f5f5;color:#050505;display:grid;place-items:center;font-family:'Bebas Neue';font-size:15px;clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)">FC</div>
+                  </div>
+                  <div style="margin-top:34px;font-size:13px;color:#9c9c9c">Member since 2023 · Auto-renews Aug 1</div>
+                  <div style="display:flex;justify-content:space-between;align-items:end;margin-top:6px">
+                    <div style="font-family:Anton;font-size:34px">$149<span style="font-size:14px;font-family:Inter;font-weight:400;color:#9c9c9c"> / mo</span></div>
+                    <div style="font:600 11px Inter;letter-spacing:.14em;color:#9c9c9c">VISA ···· 4242</div>
+                  </div>
+                </div>
+                <div style="background:var(--card);border:1px solid var(--line);padding:28px;display:flex;flex-direction:column;justify-content:space-between">
+                  <div>
+                    <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:12px">Next charge</div>
+                    <div style="font-family:'Bebas Neue';font-size:38px;line-height:1">$149.00 — AUG 1, 2026</div>
+                    <div style="color:var(--mut);font-size:13px;margin-top:8px">Fighter plan · monthly · tax included</div>
+                  </div>
+                  <div style="display:flex;gap:10px;margin-top:20px">
+                    <button style="background:transparent;border:1px solid var(--line2);color:var(--txt);padding:11px 18px;font:600 11px Inter;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="border-color:var(--txt)">Update card</button>
+                    <button style="background:transparent;border:1px solid var(--line2);color:var(--mut);padding:11px 18px;font:600 11px Inter;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="color:var(--red);border-color:var(--red)">Freeze plan</button>
+                  </div>
+                </div>
+              </div>
+              <div style="background:var(--card);border:1px solid var(--line)">
+                <div style="padding:18px 24px;border-bottom:1px solid var(--line);font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Invoices</div>
+                <sc-for list="{{ invoices }}" as="i" hint-placeholder-count="5">
+                  <div style="display:grid;grid-template-columns:130px 1fr 130px 110px 110px;padding:14px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                    <div style="font:600 12px Inter;color:var(--mut)">{{ i.id }}</div>
+                    <div style="font-size:13.5px">{{ i.desc }}</div>
+                    <div style="color:var(--dim);font-size:12.5px">{{ i.date }}</div>
+                    <div style="font-weight:600;font-size:13.5px">{{ i.amount }}</div>
+                    <div style="text-align:right"><span style="font:600 10.5px Inter;letter-spacing:.12em;text-transform:uppercase;color:{{ i.statusColor }};border:1px solid {{ i.statusColor }};padding:4px 10px">{{ i.status }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- ===== MEMBER PROFILE ===== -->
+            <sc-if value="{{ mProfile }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+                <div style="background:var(--card);border:1px solid var(--line);padding:28px">
+                  <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:22px">Profile</div>
+                  <div style="display:flex;flex-direction:column;gap:16px">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                      <label style="display:flex;flex-direction:column;gap:7px"><span style="font:600 10.5px Inter;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)">First name</span><input value="Marcus" style="background:var(--panel);border:1px solid var(--line2);color:var(--txt);padding:12px 14px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                      <label style="display:flex;flex-direction:column;gap:7px"><span style="font:600 10.5px Inter;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)">Last name</span><input value="Reid" style="background:var(--panel);border:1px solid var(--line2);color:var(--txt);padding:12px 14px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                    </div>
+                    <label style="display:flex;flex-direction:column;gap:7px"><span style="font:600 10.5px Inter;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)">Email</span><input value="marcus.reid@example.com" style="background:var(--panel);border:1px solid var(--line2);color:var(--txt);padding:12px 14px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                    <label style="display:flex;flex-direction:column;gap:7px"><span style="font:600 10.5px Inter;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)">Emergency contact</span><input value="Dana Reid · +1 (212) 555-0107" style="background:var(--panel);border:1px solid var(--line2);color:var(--txt);padding:12px 14px;font:400 14px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)"></label>
+                    <button style="align-self:start;background:var(--red);color:#fff;border:none;padding:13px 24px;font:700 12px Inter;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Save changes</button>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:16px">
+                  <div style="background:var(--card);border:1px solid var(--line);padding:28px">
+                    <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:18px">Preferences</div>
+                    <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="4">
+                      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+                        <div><div style="font-weight:600;font-size:13.5px">{{ p.label }}</div><div style="color:var(--dim);font-size:12px">{{ p.sub }}</div></div>
+                        <button onClick="{{ p.on }}" aria-pressed="{{ p.onState }}" style="width:42px;height:24px;border:1px solid {{ p.trackBorder }};background:{{ p.track }};cursor:pointer;position:relative;padding:0;border-radius:0"><span style="position:absolute;top:3px;left:{{ p.knobLeft }};width:16px;height:16px;background:{{ p.knob }};transition:left .15s"></span></button>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div style="background:var(--card);border:1px solid var(--line);padding:28px">
+                    <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:14px">Danger zone</div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:20px">
+                      <div style="color:var(--mut);font-size:13px">Cancel membership with 30 days notice.</div>
+                      <button style="background:transparent;border:1px solid var(--red);color:var(--red);padding:10px 18px;font:600 11px Inter;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;white-space:nowrap;border-radius:0" style-hover="background:var(--red);color:#fff">Cancel plan</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== TRAINER OVERVIEW ===== -->
+            <sc-if value="{{ tOverview }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:16px;align-items:start">
+                <div style="background:var(--card);border:1px solid var(--line);padding:24px">
+                  <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:20px">Sessions this week</div>
+                  <div style="display:flex;align-items:flex-end;gap:10px;height:170px">
+                    <sc-for list="{{ barsWeek }}" as="b" hint-placeholder-count="7">
+                      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:8px">
+                        <div title="{{ b.tip }}" style="height:{{ b.h }};background:{{ b.color }};min-height:4px"></div>
+                        <div style="text-align:center;font:600 10px Inter;color:var(--dim)">{{ b.label }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="background:var(--card);border:1px solid var(--line)">
+                  <div style="padding:18px 24px;border-bottom:1px solid var(--line);font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Today — Thu Jul 2</div>
+                  <sc-for list="{{ sessionsToday }}" as="s" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:80px 1fr 140px 100px;padding:14px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                      <div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:.05em">{{ s.time }}</div>
+                      <div><div style="font-weight:600;font-size:13.5px">{{ s.title }}</div><div style="color:var(--dim);font-size:12px">{{ s.room }}</div></div>
+                      <div style="color:var(--mut);font-size:12.5px">{{ s.attendees }}</div>
+                      <div style="text-align:right;font:600 10.5px Inter;letter-spacing:.12em;text-transform:uppercase;color:{{ s.statusColor }}">{{ s.status }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== TRAINER CLIENTS ===== -->
+            <sc-if value="{{ tClients }}" hint-placeholder-val="{{ false }}">
+              <div style="background:var(--card);border:1px solid var(--line)">
+                <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 160px 110px;padding:14px 24px;border-bottom:1px solid var(--line);font:700 10.5px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)">
+                  <div>Client</div><div>Program</div><div>Next session</div><div>Adherence</div><div style="text-align:right">Action</div>
+                </div>
+                <sc-for list="{{ clientsRows }}" as="c" hint-placeholder-count="6">
+                  <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 160px 110px;padding:14px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                    <div style="display:flex;align-items:center;gap:12px">
+                      <div style="width:30px;height:30px;background:var(--skel2);color:var(--txt);display:grid;place-items:center;font:700 11px Inter;flex:none">{{ c.init }}</div>
+                      <div style="font-weight:600;font-size:13.5px">{{ c.name }}</div>
+                    </div>
+                    <div style="color:var(--mut);font-size:13px">{{ c.program }}</div>
+                    <div style="color:var(--mut);font-size:13px">{{ c.next }}</div>
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <div style="flex:1;height:5px;background:var(--skel)"><div style="width:{{ c.adh }};height:100%;background:{{ c.adhColor }}"></div></div>
+                      <span style="font:600 11px Inter;color:var(--mut);width:34px">{{ c.adh }}</span>
+                    </div>
+                    <div style="text-align:right"><button style="background:transparent;border:1px solid var(--line2);color:var(--mut);padding:7px 14px;font:600 10.5px Inter;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="color:var(--txt);border-color:var(--txt)">Open</button></div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- ===== TRAINER SCHEDULE ===== -->
+            <sc-if value="{{ tSchedule }}" hint-placeholder-val="{{ false }}">
+              <div style="background:var(--card);border:1px solid var(--line)">
+                <div style="padding:18px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+                  <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Your classes this week</div>
+                  <button style="background:var(--red);color:#fff;border:none;padding:10px 18px;font:700 11px Inter;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Request cover</button>
+                </div>
+                <sc-for list="{{ trainerSchedule }}" as="r" hint-placeholder-count="7">
+                  <div style="display:grid;grid-template-columns:90px 90px 1fr 160px 110px;padding:14px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                    <div style="font:600 11px Inter;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)">{{ r.dow }}</div>
+                    <div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:.05em">{{ r.time }}</div>
+                    <div style="font-weight:600;font-size:13.5px">{{ r.title }}</div>
+                    <div style="color:var(--dim);font:600 11px Inter;letter-spacing:.12em;text-transform:uppercase">{{ r.room }}</div>
+                    <div style="text-align:right;font:600 12px Inter;color:{{ r.spotsColor }}">{{ r.spots }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- ===== TRAINER PROGRAMS ===== -->
+            <sc-if value="{{ tPrograms }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+                <sc-for list="{{ programCards }}" as="p" hint-placeholder-count="3">
+                  <div style="background:var(--card);border:1px solid var(--line);border-top:3px solid var(--red);padding:24px;display:flex;flex-direction:column;min-height:200px">
+                    <div style="font-family:'Bebas Neue';font-size:26px;letter-spacing:.05em;line-height:1.05">{{ p.name }}</div>
+                    <div style="color:var(--dim);font:600 10.5px Inter;letter-spacing:.16em;text-transform:uppercase;margin:10px 0 12px">{{ p.meta }}</div>
+                    <p style="color:var(--mut);font-size:13px;margin:0 0 20px;text-wrap:pretty">{{ p.desc }}</p>
+                    <div style="margin-top:auto;display:flex;justify-content:space-between;align-items:center">
+                      <span style="font:600 11px Inter;color:var(--mut)">{{ p.assigned }} assigned</span>
+                      <button style="background:transparent;border:1px solid var(--line2);color:var(--mut);padding:7px 14px;font:600 10.5px Inter;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="color:var(--txt);border-color:var(--txt)">Edit</button>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- ===== ADMIN OVERVIEW ===== -->
+            <sc-if value="{{ aOverview }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:16px;align-items:start">
+                <div style="background:var(--card);border:1px solid var(--line);padding:24px">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px">
+                    <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Monthly recurring revenue</div>
+                    <div style="font:600 11px Inter;color:var(--mut)">Jul 2025 — Jun 2026</div>
+                  </div>
+                  <svg viewBox="0 0 600 220" style="width:100%;height:auto;display:block" role="img" aria-label="Revenue line chart">
+                    <line x1="0" y1="55" x2="600" y2="55" stroke="var(--line)" stroke-width="1"></line>
+                    <line x1="0" y1="110" x2="600" y2="110" stroke="var(--line)" stroke-width="1"></line>
+                    <line x1="0" y1="165" x2="600" y2="165" stroke="var(--line)" stroke-width="1"></line>
+                    <polygon points="{{ revArea }}" fill="var(--glow)"></polygon>
+                    <polyline points="{{ revPts }}" fill="none" stroke="var(--red)" stroke-width="2.5"></polyline>
+                    <circle cx="{{ revLastX }}" cy="{{ revLastY }}" r="4" fill="var(--red)"></circle>
+                  </svg>
+                  <div style="display:flex;justify-content:space-between;margin-top:10px;font:600 10px Inter;color:var(--dim);letter-spacing:.08em">
+                    <sc-for list="{{ revMonths }}" as="m" hint-placeholder-count="12"><span>{{ m }}</span></sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:16px">
+                  <div style="background:var(--card);border:1px solid var(--line);padding:24px">
+                    <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:18px">Plan mix</div>
+                    <div style="display:flex;align-items:center;gap:24px">
+                      <svg viewBox="0 0 120 120" style="width:120px;height:120px;flex:none" role="img" aria-label="Plan mix donut chart">
+                        <sc-for list="{{ donutSegs }}" as="d" hint-placeholder-count="3">
+                          <circle cx="60" cy="60" r="48" fill="none" stroke="{{ d.c }}" stroke-width="14" stroke-dasharray="{{ d.dash }}" stroke-dashoffset="{{ d.off }}" transform="rotate(-90 60 60)"></circle>
+                        </sc-for>
+                      </svg>
+                      <div style="display:flex;flex-direction:column;gap:10px">
+                        <sc-for list="{{ donutLegend }}" as="l" hint-placeholder-count="3">
+                          <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--mut)"><span style="width:9px;height:9px;background:{{ l.c }};flex:none"></span>{{ l.label }} <span style="color:var(--dim)">{{ l.pct }}</span></div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="background:var(--card);border:1px solid var(--line);padding:24px">
+                    <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:16px">Attendance — last 14 days</div>
+                    <div style="display:flex;align-items:flex-end;gap:5px;height:80px">
+                      <sc-for list="{{ barsAttendance }}" as="b" hint-placeholder-count="14">
+                        <div title="{{ b.tip }}" style="flex:1;height:{{ b.h }};background:{{ b.color }};min-height:3px"></div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="background:var(--card);border:1px solid var(--line)">
+                <div style="padding:18px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+                  <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Recent signups</div>
+                  <button onClick="{{ goMembers }}" style="background:transparent;border:1px solid var(--line2);color:var(--mut);padding:8px 16px;font:600 10.5px Inter;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="color:var(--txt);border-color:var(--txt)">All members</button>
+                </div>
+                <sc-for list="{{ recentSignups }}" as="m" hint-placeholder-count="5">
+                  <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 130px 110px;padding:13px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                    <div style="display:flex;align-items:center;gap:12px"><div style="width:30px;height:30px;background:var(--skel2);display:grid;place-items:center;font:700 11px Inter;flex:none">{{ m.init }}</div><div style="font-weight:600;font-size:13.5px">{{ m.name }}</div></div>
+                    <div style="color:var(--mut);font-size:13px">{{ m.plan }}</div>
+                    <div style="color:var(--dim);font-size:12.5px">{{ m.joined }}</div>
+                    <div style="font-weight:600;font-size:13px">{{ m.mrr }}</div>
+                    <div style="text-align:right"><span style="font:600 10.5px Inter;letter-spacing:.12em;text-transform:uppercase;color:{{ m.statusColor }};border:1px solid {{ m.statusColor }};padding:4px 10px">{{ m.status }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- ===== ADMIN MEMBERS ===== -->
+            <sc-if value="{{ aMembers }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:12px;align-items:center">
+                <input placeholder="Search members…" style="flex:1;max-width:340px;background:var(--card);border:1px solid var(--line2);color:var(--txt);padding:12px 16px;font:400 13.5px Inter;outline:none;border-radius:0" style-focus="border-color:var(--red)">
+                <div style="margin-left:auto;display:flex;gap:10px">
+                  <button style="background:transparent;border:1px solid var(--line2);color:var(--mut);padding:11px 18px;font:600 11px Inter;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="color:var(--txt)">Export CSV</button>
+                  <button style="background:var(--red);color:#fff;border:none;padding:11px 18px;font:700 11px Inter;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Add member</button>
+                </div>
+              </div>
+              <div style="background:var(--card);border:1px solid var(--line)">
+                <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 110px 130px 110px;padding:14px 24px;border-bottom:1px solid var(--line);font:700 10.5px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)">
+                  <div>Member</div><div>Plan</div><div>Joined</div><div>Visits / mo</div><div>LTV</div><div style="text-align:right">Status</div>
+                </div>
+                <sc-for list="{{ membersRows }}" as="m" hint-placeholder-count="7">
+                  <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 110px 130px 110px;padding:14px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                    <div style="display:flex;align-items:center;gap:12px"><div style="width:30px;height:30px;background:var(--skel2);display:grid;place-items:center;font:700 11px Inter;flex:none">{{ m.init }}</div><div style="font-weight:600;font-size:13.5px">{{ m.name }}</div></div>
+                    <div style="color:var(--mut);font-size:13px">{{ m.plan }}</div>
+                    <div style="color:var(--dim);font-size:12.5px">{{ m.joined }}</div>
+                    <div style="color:var(--mut);font-size:13px">{{ m.visits }}</div>
+                    <div style="font-weight:600;font-size:13px">{{ m.ltv }}</div>
+                    <div style="text-align:right"><span style="font:600 10.5px Inter;letter-spacing:.12em;text-transform:uppercase;color:{{ m.statusColor }};border:1px solid {{ m.statusColor }};padding:4px 10px">{{ m.status }}</span></div>
+                  </div>
+                </sc-for>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 24px;color:var(--dim);font-size:12.5px">
+                  <span>Showing 7 of 2,412 members</span>
+                  <div style="display:flex;gap:8px">
+                    <button style="background:transparent;border:1px solid var(--line2);color:var(--mut);padding:7px 13px;font:600 11px Inter;cursor:pointer;border-radius:0">←</button>
+                    <button style="background:transparent;border:1px solid var(--line2);color:var(--mut);padding:7px 13px;font:600 11px Inter;cursor:pointer;border-radius:0">→</button>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== ADMIN TRAINERS ===== -->
+            <sc-if value="{{ aTrainers }}" hint-placeholder-val="{{ false }}">
+              <div style="background:var(--card);border:1px solid var(--line)">
+                <div style="display:grid;grid-template-columns:1.3fr 1fr 120px 120px 140px 110px;padding:14px 24px;border-bottom:1px solid var(--line);font:700 10.5px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)">
+                  <div>Coach</div><div>Discipline</div><div>Classes / wk</div><div>Clients</div><div>Rating</div><div style="text-align:right">Status</div>
+                </div>
+                <sc-for list="{{ trainersRows }}" as="t" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:1.3fr 1fr 120px 120px 140px 110px;padding:14px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                    <div style="display:flex;align-items:center;gap:12px"><div style="width:30px;height:30px;background:var(--red);color:#fff;display:grid;place-items:center;font:700 11px Inter;flex:none">{{ t.init }}</div><div style="font-weight:600;font-size:13.5px">{{ t.name }}</div></div>
+                    <div style="color:var(--mut);font-size:13px">{{ t.discipline }}</div>
+                    <div style="color:var(--mut);font-size:13px">{{ t.classes }}</div>
+                    <div style="color:var(--mut);font-size:13px">{{ t.clients }}</div>
+                    <div style="font-weight:600;font-size:13px">{{ t.rating }}</div>
+                    <div style="text-align:right"><span style="font:600 10.5px Inter;letter-spacing:.12em;text-transform:uppercase;color:{{ t.statusColor }};border:1px solid {{ t.statusColor }};padding:4px 10px">{{ t.status }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- ===== ADMIN PLANS ===== -->
+            <sc-if value="{{ aPlans }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+                <sc-for list="{{ planRows }}" as="p" hint-placeholder-count="3">
+                  <div style="background:var(--card);border:1px solid var(--line);padding:24px;display:flex;flex-direction:column">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline">
+                      <div style="font-family:'Bebas Neue';font-size:24px;letter-spacing:.08em">{{ p.name }}</div>
+                      <div style="font:600 12px Inter;color:var(--mut)">{{ p.price }}</div>
+                    </div>
+                    <div style="display:flex;gap:24px;margin:18px 0">
+                      <div><div style="font-family:'Bebas Neue';font-size:34px;line-height:1">{{ p.members }}</div><div style="font:600 10px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:2px">Members</div></div>
+                      <div><div style="font-family:'Bebas Neue';font-size:34px;line-height:1">{{ p.mrr }}</div><div style="font:600 10px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:2px">MRR</div></div>
+                      <div><div style="font-family:'Bebas Neue';font-size:34px;line-height:1;color:{{ p.churnColor }}">{{ p.churn }}</div><div style="font:600 10px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:2px">Churn</div></div>
+                    </div>
+                    <div style="height:5px;background:var(--skel);margin-bottom:20px"><div style="width:{{ p.share }};height:100%;background:var(--red)"></div></div>
+                    <button style="margin-top:auto;background:transparent;border:1px solid var(--line2);color:var(--mut);padding:10px;font:600 11px Inter;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="color:var(--txt);border-color:var(--txt)">Edit plan</button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- ===== ADMIN SHOP ===== -->
+            <sc-if value="{{ aShop }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+                <div style="background:var(--card);border:1px solid var(--line)">
+                  <div style="padding:18px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+                    <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Products</div>
+                    <button style="background:var(--red);color:#fff;border:none;padding:9px 16px;font:700 10.5px Inter;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">Add product</button>
+                  </div>
+                  <sc-for list="{{ productsRows }}" as="p" hint-placeholder-count="5">
+                    <div style="display:grid;grid-template-columns:1fr 90px 90px 90px;padding:13px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                      <div style="font-weight:600;font-size:13.5px">{{ p.name }}</div>
+                      <div style="color:var(--mut);font-size:13px">{{ p.price }}</div>
+                      <div style="color:{{ p.stockColor }};font-size:13px">{{ p.stock }}</div>
+                      <div style="text-align:right;color:var(--dim);font:600 10.5px Inter;letter-spacing:.1em;text-transform:uppercase">{{ p.cat }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="background:var(--card);border:1px solid var(--line)">
+                  <div style="padding:18px 24px;border-bottom:1px solid var(--line);font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Recent orders</div>
+                  <sc-for list="{{ ordersRows }}" as="o" hint-placeholder-count="5">
+                    <div style="display:grid;grid-template-columns:90px 1fr 80px 100px;padding:13px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                      <div style="font:600 12px Inter;color:var(--mut)">{{ o.id }}</div>
+                      <div><div style="font-weight:600;font-size:13px">{{ o.customer }}</div><div style="color:var(--dim);font-size:11.5px">{{ o.items }}</div></div>
+                      <div style="font-weight:600;font-size:13px">{{ o.total }}</div>
+                      <div style="text-align:right"><span style="font:600 10px Inter;letter-spacing:.1em;text-transform:uppercase;color:{{ o.statusColor }};border:1px solid {{ o.statusColor }};padding:3px 8px">{{ o.status }}</span></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== ADMIN CONTENT ===== -->
+            <sc-if value="{{ aContent }}" hint-placeholder-val="{{ false }}">
+              <div style="background:var(--card);border:1px solid var(--line)">
+                <div style="padding:18px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+                  <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Journal posts</div>
+                  <button style="background:var(--red);color:#fff;border:none;padding:9px 16px;font:700 10.5px Inter;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:0" style-hover="background:#ff1a25">New post</button>
+                </div>
+                <sc-for list="{{ postsRows }}" as="p" hint-placeholder-count="5">
+                  <div style="display:grid;grid-template-columns:1fr 130px 110px 110px 110px;padding:13px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                    <div style="font-weight:600;font-size:13.5px">{{ p.title }}</div>
+                    <div style="color:var(--dim);font:600 10.5px Inter;letter-spacing:.1em;text-transform:uppercase">{{ p.tag }}</div>
+                    <div style="color:var(--dim);font-size:12.5px">{{ p.date }}</div>
+                    <div style="color:var(--mut);font-size:12.5px">{{ p.views }}</div>
+                    <div style="text-align:right"><span style="font:600 10.5px Inter;letter-spacing:.12em;text-transform:uppercase;color:{{ p.statusColor }};border:1px solid {{ p.statusColor }};padding:4px 10px">{{ p.status }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="background:var(--card);border:1px solid var(--line);padding:24px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+                  <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Gallery</div>
+                  <div style="color:var(--dim);font-size:12px">Drag images into the slots</div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+                  <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="gal-1" src="https://img.magnific.com/free-photo/man-moving-giant-tire-wheel-gym_651396-296.jpg?t=st=1783028462~exp=1783032062~hmac=86810ad1231ce10bb27e98a1385831743eb1c8bbe5a69e39afc6ca7d5b077d12&w=1480" placeholder="Gallery 1" shape="rect" hint-size="100%,150px" style="width:100%;height:150px;display:block"></x-import>
+                  <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="gal-2" src="https://img.magnific.com/free-photo/full-body-portrait-athletic-shirtless-male-doing-biceps-workouts-with-dumbbells-gym-club_613910-1176.jpg?t=st=1783028466~exp=1783032066~hmac=b037090126ce70edbd959dbe51fc2bc61a098d62fdd909741cb5db6f23f5f363&w=1480" placeholder="Gallery 2" shape="rect" hint-size="100%,150px" style="width:100%;height:150px;display:block"></x-import>
+                  <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="gal-3" src="https://img.magnific.com/free-photo/bodybuilder-training-arm-with-resistance-band_7502-4758.jpg?t=st=1783028406~exp=1783032006~hmac=d9af1fd921bf1f196ff67d764812f4261a0a433815350846aa0150e840258762&w=1480" placeholder="Gallery 3" shape="rect" hint-size="100%,150px" style="width:100%;height:150px;display:block"></x-import>
+                  <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="gal-4" src="https://img.magnific.com/free-photo/man-moving-giant-tire-wheel-gym_651396-296.jpg?t=st=1783028462~exp=1783032062~hmac=86810ad1231ce10bb27e98a1385831743eb1c8bbe5a69e39afc6ca7d5b077d12&w=1480" placeholder="Gallery 4" shape="rect" hint-size="100%,150px" style="width:100%;height:150px;display:block"></x-import>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== ADMIN SETTINGS / ROLES ===== -->
+            <sc-if value="{{ aSettings }}" hint-placeholder-val="{{ false }}">
+              <div style="background:var(--card);border:1px solid var(--line)">
+                <div style="padding:18px 24px;border-bottom:1px solid var(--line);font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)">Roles &amp; permissions</div>
+                <div style="display:grid;grid-template-columns:1.4fr repeat(3,1fr);padding:12px 24px;border-bottom:1px solid var(--line);font:700 10.5px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)">
+                  <div>Permission</div><div style="text-align:center">Member</div><div style="text-align:center">Trainer</div><div style="text-align:center">Admin</div>
+                </div>
+                <sc-for list="{{ permMatrix }}" as="p" hint-placeholder-count="7">
+                  <div style="display:grid;grid-template-columns:1.4fr repeat(3,1fr);padding:13px 24px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--panel)">
+                    <div style="font-size:13.5px;font-weight:600">{{ p.name }}</div>
+                    <div style="text-align:center;color:{{ p.mColor }};font-weight:700">{{ p.m }}</div>
+                    <div style="text-align:center;color:{{ p.tColor }};font-weight:700">{{ p.t }}</div>
+                    <div style="text-align:center;color:{{ p.aColor }};font-weight:700">{{ p.a }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="background:var(--card);border:1px solid var(--line);padding:28px">
+                <div style="font:700 11px Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:18px">Club settings</div>
+                <sc-for list="{{ clubSettings }}" as="p" hint-placeholder-count="4">
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+                    <div><div style="font-weight:600;font-size:13.5px">{{ p.label }}</div><div style="color:var(--dim);font-size:12px">{{ p.sub }}</div></div>
+                    <button onClick="{{ p.on }}" aria-pressed="{{ p.onState }}" style="width:42px;height:24px;border:1px solid {{ p.trackBorder }};background:{{ p.track }};cursor:pointer;position:relative;padding:0;border-radius:0"><span style="position:absolute;top:3px;left:{{ p.knobLeft }};width:16px;height:16px;background:{{ p.knob }};transition:left .15s"></span></button>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <!-- /sections -->
+
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'dark' | 'light'&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#E50914&quot;,&quot;#FF2E3C&quot;,&quot;#C8A24A&quot;],&quot;default&quot;:&quot;#FF2E3C&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;}}">
+class Component extends DCLogic {
+  state = { route: 'home', role: null, tab: 'overview', vs: 'ready', period: 'monthly', theme: null, resetSent: false, drawer: false, prefT: [true, true, false, true], clubT: [true, true, false, true] };
+
+  go(r) { this.setState({ route: r, resetSent: false }); try { window.scrollTo({ top: 0 }); } catch (e) {} }
+
+  _revealVisible() {
+    // Fail-safe reveal: anything at/above the fold line shows, IO or not.
+    const vh = window.innerHeight || 800;
+    document.querySelectorAll('[data-reveal]:not([data-reveal="in"])').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.top < vh * 0.92 && r.bottom > 0) el.setAttribute('data-reveal', 'in');
+    });
+  }
+  _fixFrozenAnimations() {
+    // In some embedded contexts CSS animation timelines never advance, which
+    // leaves fill-mode:both elements stuck at their 'from' (opacity 0) frame.
+    // If an entrance-animated element still computes near-invisible after its
+    // animation should have finished, force-finish it.
+    document.querySelectorAll('[style*="fcUp"],[style*="fcClip"]').forEach((el) => {
+      try {
+        if (parseFloat(getComputedStyle(el).opacity) < 0.1) {
+          el.style.animation = 'none';
+          el.style.opacity = '1';
+          el.style.clipPath = 'none';
+          el.style.transform = 'none';
+        }
+      } catch (e) {}
+    });
+  }
+  _wireReveals() {
+    if (!this._io && 'IntersectionObserver' in window) {
+      try {
+        this._io = new IntersectionObserver((entries) => {
+          for (const en of entries) {
+            if (en.isIntersecting) { en.target.setAttribute('data-reveal', 'in'); this._io.unobserve(en.target); }
+          }
+        }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
+      } catch (e) { this._io = null; }
+    }
+    // Synchronous wiring + reveal — never gated behind rAF or events, which
+    // may not run in some embedded contexts. Timers are the only guarantee.
+    document.querySelectorAll('[data-reveal]:not([data-reveal="in"])').forEach((el) => {
+      if (this._io) this._io.observe(el); // re-observing an observed target is a no-op
+    });
+    this._revealVisible();
+    if (!this._pollT) {
+      this._pollT = setInterval(() => this._revealVisible(), 450);
+    }
+    if (!this._heroT) {
+      this._heroT = setTimeout(() => {
+        this._fixFrozenAnimations();
+        this._heroFixDone = true;
+      }, 2500);
+    } else if (this._heroFixDone) {
+      // Re-renders can remount hero nodes with fresh frozen animations.
+      setTimeout(() => this._fixFrozenAnimations(), 1600);
+    }
+  }
+  componentDidMount() {
+    this._wireReveals();
+    this._topFn = () => {
+      const show = window.scrollY > 600;
+      if (show !== this.state.showTop) this.setState({ showTop: show });
+    };
+    window.addEventListener('scroll', this._topFn, { passive: true });
+  }
+  componentDidUpdate() { this._wireReveals(); }
+  componentWillUnmount() {
+    // Null the refs after clearing — the runtime remounts this component, and
+    // stale truthy refs would make the remount's guards skip recreation.
+    if (this._io) { this._io.disconnect(); this._io = null; }
+    if (this._pollT) { clearInterval(this._pollT); this._pollT = null; }
+    if (this._heroT) { clearTimeout(this._heroT); this._heroT = null; }
+    if (this._topFn) { window.removeEventListener('scroll', this._topFn); this._topFn = null; }
+  }
+
+  renderVals() {
+    const S = this.state;
+    const theme = S.theme ?? (this.props.theme ?? 'dark');
+    const accent = this.props.accent ?? null;
+    if (typeof document !== 'undefined') {
+      document.body.dataset.theme = theme;
+      if (accent) document.body.style.setProperty('--red', accent); else document.body.style.removeProperty('--red');
+    }
+    const g = (r) => () => this.go(r);
+    const route = S.route;
+    const publicRoutes = ['home','about','classes','trainers','pricing','blog','contact'];
+    const isPublic = publicRoutes.includes(route);
+    const authRoutes = ['login','signup','forgot'];
+    const isAuth = authRoutes.includes(route);
+    const inDash = route === 'dash';
+    const role = S.role;
+
+    const navDefs = [['about','About'],['classes','Programs'],['trainers','Coaches'],['pricing','Membership'],['blog','Journal'],['contact','Contact']];
+    const publicNav = navDefs.map(([r, label]) => ({ label, on: g(r), color: route === r ? 'var(--txt)' : 'var(--mut)', border: route === r ? 'var(--red)' : 'transparent' }));
+
+    const marqueeWords = ['DISCIPLINE','POWER','RESPECT','PRECISION','ENDURANCE','HUMILITY'];
+    const marquee = [...marqueeWords, ...marqueeWords].map((text, i) => ({ text, color: i % 3 === 0 ? 'var(--red)' : 'var(--txt)' }));
+
+    const homeStats = [
+      { value: '2,400', label: 'Active members' },
+      { value: '38', label: 'Pro coaches' },
+      { value: '120+', label: 'Classes / week' },
+      { value: '9', label: 'Champions trained' },
+    ];
+
+    const homePrograms = [
+      { num: '01', name: 'BOXING', desc: 'Footwork, timing and ring IQ. From fundamentals to full sparring.', level: 'All levels' },
+      { num: '02', name: 'MUAY THAI', desc: 'The art of eight limbs — clinch, kicks, knees and elbows.', level: 'All levels' },
+      { num: '03', name: 'STRENGTH LAB', desc: 'Fighter-grade strength & conditioning, programmed in 8-week blocks.', level: 'Coached' },
+    ];
+
+    const period = S.period;
+    const priceOf = (m) => period === 'annual' ? Math.round(m * 0.85) : m;
+    const planDefs = [
+      { name: 'CONTENDER', base: 89, cta: 'Start free week', featured: false, features: ['Open-floor access 05:30–23:00','4 coached classes / month','Locker & towel service','Member app & tracking'] },
+      { name: 'FIGHTER', base: 149, cta: 'Start free week', featured: true, features: ['Unlimited coached classes','Sparring lab access','8-week assessments','Recovery suite (sauna, cold)','Guest pass — 1 / month'] },
+      { name: 'CHAMPION', base: 249, cta: 'Apply for Champion', featured: false, features: ['Everything in Fighter','2 private sessions / month','Personal nutrition plan','Fight-camp programming','Priority booking'] },
+    ];
+    const plans = planDefs.map((p) => ({
+      name: p.name, features: p.features, cta: p.cta, featured: p.featured,
+      price: '$' + priceOf(p.base),
+      billing: period === 'annual' ? 'Billed annually — save 15%' : 'Billed monthly · no contract',
+      borderColor: p.featured ? 'var(--red)' : 'var(--line)',
+      btnBg: p.featured ? 'var(--red)' : 'transparent',
+      btnColor: p.featured ? '#fff' : 'var(--txt)',
+      btnBorder: p.featured ? 'var(--red)' : 'var(--line2)',
+    }));
+
+    const footerCols = [
+      { title: 'Club', links: [ {label:'About', on:g('about')}, {label:'Programs', on:g('classes')}, {label:'Coaches', on:g('trainers')}, {label:'Journal', on:g('blog')} ] },
+      { title: 'Membership', links: [ {label:'Plans & pricing', on:g('pricing')}, {label:'Free week', on:g('signup')}, {label:'Member sign in', on:g('login')} ] },
+      { title: 'Visit', links: [ {label:'Contact', on:g('contact')}, {label:'Schedule', on:g('classes')}, {label:'Careers', on:g('contact')} ] },
+    ];
+
+    const aboutValues = [
+      { num: '01', title: 'COACHED, ALWAYS', desc: 'Nothing on our floor is unsupervised. Every session has a coach with competition experience watching your form.' },
+      { num: '02', title: 'CAPPED ROSTER', desc: 'Membership is limited to 2,400. When we hit the cap, the waitlist opens. The floor never feels crowded.' },
+      { num: '03', title: 'MEASURED PROGRESS', desc: 'Eight-week assessments across conditioning, technique and body composition. You always know where you stand.' },
+    ];
+    const facilityList = [
+      'Two full-size competition rings and a regulation cage',
+      '24 heavy bags, uppercut bags and aqua bags',
+      'Dedicated strength lab — 12 platforms, dumbbells to 60kg',
+      '400m² of open mat space for BJJ and wrestling',
+      'Recovery suite: sauna, cold plunge, compression therapy',
+    ];
+    const classesList = [
+      { num: '01', tag: 'Striking', name: 'BOXING', desc: 'Footwork, defence, combinations and ring IQ. Fundamentals track for new members, sparring track for approved athletes.', duration: '60 min', freq: '18× / week', level: 'All levels' },
+      { num: '02', tag: 'Striking', name: 'MUAY THAI', desc: 'The art of eight limbs. Pad work, clinch craft and low-kick defence built round by round.', duration: '60 min', freq: '14× / week', level: 'All levels' },
+      { num: '03', tag: 'Grappling', name: 'BRAZILIAN JIU-JITSU', desc: 'Gi and no-gi. Positional sparring from day one, with a structured belt curriculum.', duration: '75 min', freq: '12× / week', level: 'All levels' },
+      { num: '04', tag: 'Grappling', name: 'WRESTLING', desc: 'Takedowns, top pressure and scrambling. The base layer of every complete fighter.', duration: '60 min', freq: '8× / week', level: 'Intermediate+' },
+      { num: '05', tag: 'Conditioning', name: 'STRENGTH LAB', desc: 'Fighter-grade strength & conditioning programmed in 8-week blocks. Max strength, power, engine.', duration: '50 min', freq: '20× / week', level: 'Coached' },
+      { num: '06', tag: 'Invite only', name: 'SPARRING LAB', desc: 'Technical and hard sparring under supervision. Headgear mandatory, ego optional. Coach approval required.', duration: '90 min', freq: '4× / week', level: 'Approved' },
+    ];
+    const scheduleRows = [
+      { time: '06:00', title: 'Boxing Fundamentals', coach: 'A. Silva', room: 'Ring 1', spots: '4 left', spotsColor: 'var(--mut)' },
+      { time: '07:00', title: 'Strength Lab — Block C', coach: 'M. Volkov', room: 'Strength Lab', spots: '9 left', spotsColor: 'var(--mut)' },
+      { time: '12:15', title: 'Muay Thai', coach: 'N. Charoen', room: 'Ring 2', spots: '2 left', spotsColor: 'var(--red)' },
+      { time: '17:30', title: 'BJJ No-Gi', coach: 'R. Costa', room: 'Mat Hall', spots: '6 left', spotsColor: 'var(--mut)' },
+      { time: '18:30', title: 'Boxing — Advanced', coach: 'A. Silva', room: 'Ring 1', spots: 'Waitlist', spotsColor: 'var(--red)' },
+      { time: '19:30', title: 'Wrestling', coach: 'D. Okafor', room: 'Mat Hall', spots: '5 left', spotsColor: 'var(--mut)' },
+      { time: '20:30', title: 'Sparring Lab', coach: 'A. Silva', room: 'Ring 1 + 2', spots: 'Invite', spotsColor: 'var(--dim)' },
+    ];
+    const trainersList = [
+      { imgId: 'coach-silva', imgSrc: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop', imgHint: 'Coach portrait — B&W', name: 'ANA SILVA', role: 'Head Boxing Coach', bio: 'Two-division national champion. 14 years coaching amateurs to the podium.', record: '24–2 PRO · 9 KO' },
+      { imgId: 'coach-charoen', imgSrc: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop', imgHint: 'Coach portrait — B&W', name: 'NIRAN CHAROEN', role: 'Muay Thai', bio: 'Lumpinee stadium veteran from Bangkok. Precision over power, always.', record: '118 FIGHTS · 3 TITLES' },
+      { imgId: 'coach-costa', imgSrc: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800&auto=format&fit=crop', imgHint: 'Coach portrait — B&W', name: 'RAFA COSTA', role: 'BJJ — Black Belt III', bio: 'ADCC trials finalist. Runs the gi and no-gi curriculum and the comp team.', record: 'IBJJF PAN CHAMPION' },
+      { imgId: 'coach-volkov', imgSrc: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800&auto=format&fit=crop', imgHint: 'Coach portrait — B&W', name: 'MAKS VOLKOV', role: 'Strength & Conditioning', bio: 'Former Olympic weightlifting coach. Builds engines that last twelve rounds.', record: 'CSCS · 11 YEARS' },
+    ];
+    trainersList.forEach((t) => { t.initials = t.name.split(' ').map((w) => w[0]).join(''); });
+    const testimonials = [
+      { init: 'JT', name: 'Jade Torres', meta: 'Fighter plan · 4 years', quote: 'I came in scared of getting hit. Two years later I medaled at nationals. The coaching here is a different sport entirely.' },
+      { init: 'KO', name: 'Kwame Osei', meta: 'Contender plan · 8 months', quote: 'No mirrors, no posing, nobody filming themselves. You walk in, you work, and the coaches see everything. Best money I spend.' },
+      { init: 'LB', name: 'Lena Brandt', meta: 'Champion plan · 2 years', quote: 'The 8-week assessments changed how I train. I stopped guessing. Down 14kg and my jab finally has a brain behind it.' },
+    ];
+    const onboardingSteps = [
+      { num: '01', numColor: 'var(--red)', title: 'ASSESSMENT', desc: 'A coach takes you through movement, conditioning and technique baselines in a private one-hour session.' },
+      { num: '02', numColor: 'var(--dim)', title: 'FUNDAMENTALS TRACK', desc: 'Three weeks of capped fundamentals classes in your chosen discipline — stance, footwork, defence, and floor etiquette.' },
+      { num: '03', numColor: 'var(--dim)', title: 'PROGRAM ASSIGNMENT', desc: 'You get a personal 8-week block: class schedule, strength programming, and nutrition targets in your dashboard.' },
+      { num: '04', numColor: 'var(--dim)', title: 'FIRST REVIEW', desc: 'Day 30 — sit down with your coach, review the data, and set the next block. This cycle never stops.' },
+    ];
+    const shopStrip = [
+      { cat: 'Gear', name: 'FC PRO LEATHER GLOVES', price: '$120' },
+      { cat: 'Gear', name: 'COMPETITION WRAPS 4.5M', price: '$18' },
+      { cat: 'Apparel', name: 'FC TRAINING TEE', price: '$44' },
+      { cat: 'Supps', name: 'ISOLATE WHEY 2KG', price: '$68' },
+    ];
+    const faqs = [
+      { q: 'Do I need experience to join?', a: 'No. Around 60% of members arrive with zero combat experience. Fundamentals tracks in every discipline take you from your first wrap to your first spar — at your pace.' },
+      { q: 'Is sparring mandatory?', a: 'Never. Sparring Lab is invite-only and requires coach approval. You can train here for years and never take a punch.' },
+      { q: 'Can I freeze or cancel?', a: 'Monthly plans cancel anytime with 30 days notice. All plans can freeze up to 8 weeks per year for injury or travel.' },
+      { q: 'What does the free week include?', a: 'Full access: open floor, any fundamentals class, and one assessment with a coach. No card required.' },
+    ];
+    const blogSide = [
+      { tag: 'Technique', date: 'Jun 21', title: 'The jab is a question. Stop asking it politely.' },
+      { tag: 'Recovery', date: 'Jun 14', title: 'Cold plunge protocols we actually use' },
+      { tag: 'Club news', date: 'Jun 07', title: 'Three members medal at nationals' },
+    ];
+    const blogGrid = [
+      { tag: 'Nutrition', date: 'May 30', title: 'Making weight without losing your mind', excerpt: 'Our nutritionist on water cuts, fibre timing, and why crash diets cost you rounds.' },
+      { tag: 'Strength', date: 'May 22', title: 'Why fighters squat differently', excerpt: 'Force production in stance, not just in kilos. Block C explained.' },
+      { tag: 'Mindset', date: 'May 15', title: 'Losing a round well', excerpt: 'What our coaches watch for between rounds — and what it predicts.' },
+    ];
+    const contactRows = [
+      { k: 'Address', v: '4 Mercer Street, Downtown' },
+      { k: 'Hours', v: 'Mon–Fri 05:30–23:00 · Sat–Sun 07:00–21:00' },
+      { k: 'Phone', v: '+1 (212) 555-0184' },
+      { k: 'Email', v: 'frontdesk@fightclub.gym' },
+    ];
+
+    // ---------- Dashboard ----------
+    const tab = S.tab;
+    const setTab = (t) => () => this.setState({ tab: t, vs: 'ready', drawer: false });
+    const navByRole = {
+      member: [['overview','Overview'],['workouts','Workout plan'],['nutrition','Nutrition'],['bookings','Bookings'],['payments','Payments'],['profile','Profile']],
+      trainer: [['overview','Overview'],['clients','Clients'],['schedule','Schedule'],['programs','Programs']],
+      admin: [['overview','Analytics'],['members','Members'],['trainers','Trainers'],['plans','Plans'],['shop','Shop & orders'],['content','Content'],['settings','Roles & settings']],
+    };
+    const sideNav = (navByRole[role] || []).map(([id, label], i) => ({
+      num: String(i + 1).padStart(2, '0'), label, on: setTab(id),
+      bg: tab === id ? 'var(--card)' : 'transparent',
+      border: tab === id ? 'var(--red)' : 'transparent',
+      color: tab === id ? 'var(--txt)' : 'var(--mut)',
+    }));
+    const tabTitles = { overview: role === 'admin' ? 'Analytics' : 'Overview', workouts: 'Workout plan', nutrition: 'Nutrition', bookings: 'Bookings', payments: 'Payments & invoices', profile: 'Profile & settings', clients: 'Clients', schedule: 'Schedule', programs: 'Programs', members: 'Members', trainers: 'Trainers', plans: 'Membership plans', shop: 'Shop & orders', content: 'Content', settings: 'Roles & settings' };
+    const roleTitle = role === 'admin' ? 'Admin console' : role === 'trainer' ? 'Coach portal' : 'Member area';
+    const userByRole = { member: ['Marcus Reid', 'MR', 'Fighter plan'], trainer: ['Ana Silva', 'AS', 'Head Boxing Coach'], admin: ['Danny Okafor', 'DO', 'Owner · Admin'] };
+    const [userName, userInitials, userPlan] = userByRole[role] || ['', '', ''];
+
+    const vs = S.vs;
+    const vsOptions = ['ready', 'loading', 'empty', 'error'].map((v) => ({
+      label: v, on: () => this.setState({ vs: v }),
+      bg: vs === v ? 'var(--txt)' : 'transparent', color: vs === v ? 'var(--inv)' : 'var(--dim)',
+    }));
+
+    const notifications = [
+      { dot: 'var(--red)', title: 'Sparring Lab approval', body: 'Coach Silva approved you for technical sparring.', time: '2h ago' },
+      { dot: 'var(--red)', title: 'Assessment booked', body: 'Block C assessment — Jul 24, 07:00 with Coach Volkov.', time: '1d ago' },
+      { dot: 'var(--dim)', title: 'Invoice paid', body: '$149.00 — Fighter plan, July.', time: '2d ago' },
+      { dot: 'var(--dim)', title: 'Class rescheduled', body: 'Muay Thai Thu 12:15 moved to Ring 1.', time: '3d ago' },
+    ];
+
+    const statsByRole = {
+      member: [
+        { label: 'Sessions this month', value: '18', delta: '+3 vs June', deltaColor: 'var(--red)' },
+        { label: 'Training hours', value: '24.5', delta: '+2.1 hrs', deltaColor: 'var(--red)' },
+        { label: 'Current streak', value: '9 days', delta: 'Personal best', deltaColor: 'var(--mut)' },
+        { label: 'Next assessment', value: 'JUL 24', delta: 'Block C · week 3/8', deltaColor: 'var(--mut)' },
+      ],
+      trainer: [
+        { label: 'Sessions this week', value: '22', delta: '4 today', deltaColor: 'var(--red)' },
+        { label: 'Active clients', value: '31', delta: '+2 this month', deltaColor: 'var(--red)' },
+        { label: 'Avg attendance', value: '87%', delta: '+4 pts', deltaColor: 'var(--red)' },
+        { label: 'Rating', value: '4.9', delta: '212 reviews', deltaColor: 'var(--mut)' },
+      ],
+      admin: [
+        { label: 'MRR', value: '$318K', delta: '+6.2% MoM', deltaColor: 'var(--red)' },
+        { label: 'Active members', value: '2,412', delta: '+38 net', deltaColor: 'var(--red)' },
+        { label: 'Churn', value: '1.8%', delta: '−0.3 pts', deltaColor: 'var(--red)' },
+        { label: 'Check-ins today', value: '641', delta: 'Peak 18:30', deltaColor: 'var(--mut)' },
+      ],
+    };
+    const dashStats = statsByRole[role] || [];
+
+    const memberBars = [5, 6, 4, 7, 8, 6, 9, 7, 8, 10, 9, 11];
+    const trainerBars = [4, 5, 3, 6, 4, 2, 0];
+    const barLabels12 = ['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12'];
+    const dows = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const barsWeek = role === 'trainer'
+      ? trainerBars.map((v, i) => ({ h: Math.round((v / 6) * 100) + '%', label: dows[i], color: i === 3 ? 'var(--red)' : 'var(--skel2)', tip: v + ' sessions' }))
+      : memberBars.map((v, i) => ({ h: Math.round((v / 11) * 100) + '%', label: barLabels12[i], color: i === 11 ? 'var(--red)' : 'var(--skel2)', tip: v + ' hrs' }));
+
+    const upNext = [
+      { time: '18:30', title: 'Boxing — Advanced', sub: 'Ring 1 · Coach Silva · today' },
+      { time: '07:00', title: 'Strength Lab — Block C', sub: 'Strength Lab · Coach Volkov · Fri' },
+      { time: '10:00', title: 'BJJ No-Gi', sub: 'Mat Hall · Coach Costa · Sat' },
+    ];
+
+    const workoutDays = [
+      { day: 'DAY 1 — LOWER', focus: 'Max strength', status: 'Completed', statusColor: 'var(--dim)', exercises: [
+        { name: 'Back squat', sets: '5 × 3', load: '142.5 kg', tempo: '31X1' },
+        { name: 'Romanian deadlift', sets: '4 × 6', load: '110 kg', tempo: '3010' },
+        { name: 'Split squat', sets: '3 × 8 / leg', load: '2×24 kg', tempo: '2010' },
+        { name: 'Nordic curl', sets: '3 × 5', load: 'BW', tempo: '5010' } ] },
+      { day: 'DAY 2 — UPPER', focus: 'Power + pull', status: 'Today', statusColor: 'var(--red)', exercises: [
+        { name: 'Bench press', sets: '5 × 3', load: '102.5 kg', tempo: '21X1' },
+        { name: 'Weighted pull-up', sets: '4 × 5', load: '+20 kg', tempo: '2011' },
+        { name: 'Landmine press', sets: '3 × 8 / arm', load: '40 kg', tempo: 'X010' },
+        { name: 'Med-ball rotational throw', sets: '4 × 6 / side', load: '6 kg', tempo: 'MAX' } ] },
+      { day: 'DAY 3 — ENGINE', focus: 'Conditioning', status: 'Fri', statusColor: 'var(--mut)', exercises: [
+        { name: 'Assault bike intervals', sets: '10 × 30s', load: '> 550 W', tempo: '1:1' },
+        { name: 'Sled push', sets: '6 × 20 m', load: '90 kg', tempo: 'HARD' },
+        { name: 'Heavy bag rounds', sets: '6 × 3 min', load: '—', tempo: 'R60' } ] },
+    ];
+
+    const macros = [
+      { label: 'Calories', value: '1,840', target: '2,450', pct: '75%', color: 'var(--red)' },
+      { label: 'Protein', value: '142g', target: '190g', pct: '75%', color: 'var(--red)' },
+      { label: 'Carbs', value: '188g', target: '260g', pct: '72%', color: 'var(--skel2)' },
+      { label: 'Fat', value: '48g', target: '75g', pct: '64%', color: 'var(--skel2)' },
+    ];
+    const meals = [
+      { time: '07:30', name: 'Breakfast', detail: 'Oats, whey, blueberries, almonds', macros: 'P 42 · C 68 · F 14', kcal: '580' },
+      { time: '12:30', name: 'Lunch', detail: 'Chicken thigh, jasmine rice, greens', macros: 'P 48 · C 72 · F 16', kcal: '640' },
+      { time: '16:00', name: 'Pre-training', detail: 'Greek yogurt, banana, honey', macros: 'P 24 · C 52 · F 6', kcal: '360' },
+      { time: '21:00', name: 'Post-training', detail: 'Salmon, sweet potato, broccoli', macros: 'P 44 · C 58 · F 22', kcal: '620' },
+    ];
+
+    const weekStrip = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((dow, i) => {
+      const active = i === 3;
+      return { dow, date: String(29 + i > 30 ? 29 + i - 30 : 29 + i).padStart(2, '0'), count: [1,0,2,3,1,1,0][i] ? [1,0,2,3,1,1,0][i] + ' booked' : '—',
+        bg: active ? 'var(--txt)' : 'var(--card)', border: active ? 'var(--txt)' : 'var(--line)',
+        fg: active ? 'var(--inv)' : 'var(--txt)', sub: active ? 'var(--inv)' : 'var(--dim)' };
+    });
+    const bookings = [
+      { time: '12:15', title: 'Muay Thai', coach: 'Coach Charoen', room: 'Ring 2', status: 'Confirmed', statusColor: 'var(--mut)', action: 'Cancel' },
+      { time: '18:30', title: 'Boxing — Advanced', coach: 'Coach Silva', room: 'Ring 1', status: 'Confirmed', statusColor: 'var(--mut)', action: 'Cancel' },
+      { time: '20:30', title: 'Sparring Lab', coach: 'Coach Silva', room: 'Ring 1 + 2', status: 'Waitlist #2', statusColor: 'var(--red)', action: 'Leave' },
+    ];
+
+    const invoices = [
+      { id: 'INV-2607', desc: 'Fighter plan — July', date: 'Jul 1, 2026', amount: '$149.00', status: 'Paid', statusColor: 'var(--mut)' },
+      { id: 'INV-2534', desc: 'Fighter plan — June', date: 'Jun 1, 2026', amount: '$149.00', status: 'Paid', statusColor: 'var(--mut)' },
+      { id: 'INV-2491', desc: 'Private session ×2', date: 'May 18, 2026', amount: '$180.00', status: 'Paid', statusColor: 'var(--mut)' },
+      { id: 'INV-2460', desc: 'Fighter plan — May', date: 'May 1, 2026', amount: '$149.00', status: 'Paid', statusColor: 'var(--mut)' },
+      { id: 'INV-2418', desc: 'Fight Club wraps + gloves', date: 'Apr 22, 2026', amount: '$164.00', status: 'Refunded', statusColor: 'var(--red)' },
+    ];
+
+    const toggleRow = (key, i) => () => { const arr = [...S[key]]; arr[i] = !arr[i]; this.setState({ [key]: arr }); };
+    const mkToggle = (on, handler) => ({ on: handler, onState: on ? 'true' : 'false',
+      track: on ? 'var(--red)' : 'transparent', trackBorder: on ? 'var(--red)' : 'var(--line2)',
+      knob: on ? '#fff' : 'var(--dim)', knobLeft: on ? '21px' : '3px' });
+    const prefDefs = [['Class reminders', 'Push notification 2h before class'], ['Waitlist auto-book', 'Grab a spot the moment one opens'], ['Progress emails', 'Weekly training summary every Monday'], ['Public leaderboard', 'Show my name on club leaderboards']];
+    const prefs = prefDefs.map(([label, sub], i) => ({ label, sub, ...mkToggle(S.prefT[i], toggleRow('prefT', i)) }));
+    const clubDefs = [['New member auto-approval', 'Skip manual review for standard signups'], ['Waitlist overbooking', 'Allow +2 over class cap from waitlist'], ['Public class schedule', 'Show timetable to non-members'], ['Maintenance mode', 'Take member portal offline']];
+    const clubSettings = clubDefs.map(([label, sub], i) => ({ label, sub, ...mkToggle(S.clubT[i], toggleRow('clubT', i)) }));
+
+    // trainer
+    const sessionsToday = [
+      { time: '06:00', title: 'Boxing Fundamentals', room: 'Ring 1', attendees: '14 / 16 booked', status: 'Done', statusColor: 'var(--dim)' },
+      { time: '12:15', title: 'Private — M. Reid', room: 'Ring 2', attendees: '1:1 session', status: 'Done', statusColor: 'var(--dim)' },
+      { time: '18:30', title: 'Boxing — Advanced', room: 'Ring 1', attendees: '16 / 16 + waitlist', status: 'Up next', statusColor: 'var(--red)' },
+      { time: '20:30', title: 'Sparring Lab', room: 'Ring 1 + 2', attendees: '10 approved', status: 'Tonight', statusColor: 'var(--mut)' },
+    ];
+    const clientsRows = [
+      { init: 'MR', name: 'Marcus Reid', program: 'Strength Block C', next: 'Today 18:30', adh: '92%', adhColor: 'var(--red)' },
+      { init: 'JT', name: 'Jade Torres', program: 'Fight camp — wk 5', next: 'Fri 07:00', adh: '97%', adhColor: 'var(--red)' },
+      { init: 'KO', name: 'Kwame Osei', program: 'Fundamentals', next: 'Sat 10:00', adh: '78%', adhColor: 'var(--skel2)' },
+      { init: 'LB', name: 'Lena Brandt', program: 'Strength Block B', next: 'Mon 06:00', adh: '85%', adhColor: 'var(--red)' },
+      { init: 'SK', name: 'Sam Kim', program: 'Return-to-train', next: 'Unscheduled', adh: '41%', adhColor: 'var(--dim)' },
+      { init: 'PN', name: 'Priya Nair', program: 'Fight camp — wk 2', next: 'Thu 19:30', adh: '95%', adhColor: 'var(--red)' },
+    ];
+    const trainerSchedule = scheduleRows.map((r, i) => ({ ...r, dow: ['Mon','Mon','Tue','Wed','Thu','Fri','Sat'][i] }));
+    const programCards = [
+      { name: 'STRENGTH BLOCK C', meta: '8 weeks · Max strength', desc: 'Squat/bench/pull emphasis with rotational power work for strikers.', assigned: 12 },
+      { name: 'FIGHT CAMP — 8WK', meta: '8 weeks · Competition prep', desc: 'Periodized camp: volume taper, sparring rounds, weight management.', assigned: 4 },
+      { name: 'FUNDAMENTALS', meta: 'Ongoing · Entry track', desc: 'First 12 weeks: stance, footwork, defence, and conditioning base.', assigned: 15 },
+    ];
+
+    // admin charts
+    const rev = [212, 220, 216, 231, 238, 247, 255, 268, 271, 284, 299, 318];
+    const min = 200, max = 330;
+    const pts = rev.map((v, i) => [Math.round((i / (rev.length - 1)) * 560) + 20, Math.round(210 - ((v - min) / (max - min)) * 190)]);
+    const revPts = pts.map((p) => p.join(',')).join(' ');
+    const revArea = '20,220 ' + revPts + ' 580,220';
+    const [revLastX, revLastY] = pts[pts.length - 1];
+    const revMonths = ['J','A','S','O','N','D','J','F','M','A','M','J'];
+    const C = 2 * Math.PI * 48;
+    const mix = [{ label: 'Fighter', v: 0.52, c: 'var(--red)' }, { label: 'Contender', v: 0.31, c: 'var(--skel2)' }, { label: 'Champion', v: 0.17, c: 'var(--dim)' }];
+    let acc = 0;
+    const donutSegs = mix.map((m) => { const seg = { c: m.c, dash: (m.v * C).toFixed(1) + ' ' + C.toFixed(1), off: (-acc * C).toFixed(1) }; acc += m.v; return seg; });
+    const donutLegend = mix.map((m) => ({ label: m.label, pct: Math.round(m.v * 100) + '%', c: m.c }));
+    const att = [420, 512, 488, 530, 601, 641, 380, 445, 520, 495, 560, 610, 641, 590];
+    const barsAttendance = att.map((v, i) => ({ h: Math.round((v / 641) * 100) + '%', color: i === 12 ? 'var(--red)' : 'var(--skel2)', tip: v + ' check-ins' }));
+
+    const recentSignups = [
+      { init: 'EW', name: 'Elias Weber', plan: 'Fighter', joined: 'Jul 1, 2026', mrr: '$149', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'TM', name: 'Tara Moreno', plan: 'Champion', joined: 'Jun 30, 2026', mrr: '$249', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'JH', name: 'Jonas Hale', plan: 'Contender', joined: 'Jun 29, 2026', mrr: '$89', status: 'Trial', statusColor: 'var(--red)' },
+      { init: 'AF', name: 'Amara Fofana', plan: 'Fighter', joined: 'Jun 28, 2026', mrr: '$149', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'RD', name: 'Rui Duarte', plan: 'Fighter', joined: 'Jun 27, 2026', mrr: '$149', status: 'Trial', statusColor: 'var(--red)' },
+    ];
+    const membersRows = [
+      { init: 'MR', name: 'Marcus Reid', plan: 'Fighter', joined: 'Mar 2023', visits: '18', ltv: '$5,364', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'JT', name: 'Jade Torres', plan: 'Champion', joined: 'Jan 2022', visits: '24', ltv: '$13,446', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'KO', name: 'Kwame Osei', plan: 'Contender', joined: 'May 2026', visits: '9', ltv: '$178', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'LB', name: 'Lena Brandt', plan: 'Fighter', joined: 'Sep 2024', visits: '15', ltv: '$3,278', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'SK', name: 'Sam Kim', plan: 'Fighter', joined: 'Feb 2025', visits: '3', ltv: '$2,533', status: 'At risk', statusColor: 'var(--red)' },
+      { init: 'PN', name: 'Priya Nair', plan: 'Champion', joined: 'Nov 2023', visits: '22', ltv: '$7,968', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'OB', name: 'Otis Blake', plan: 'Contender', joined: 'Jun 2026', visits: '11', ltv: '$89', status: 'Trial', statusColor: 'var(--red)' },
+    ];
+    const trainersRows = [
+      { init: 'AS', name: 'Ana Silva', discipline: 'Boxing', classes: '18', clients: '31', rating: '4.9 ★', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'NC', name: 'Niran Charoen', discipline: 'Muay Thai', classes: '14', clients: '26', rating: '4.8 ★', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'RC', name: 'Rafa Costa', discipline: 'BJJ', classes: '12', clients: '29', rating: '4.9 ★', status: 'Active', statusColor: 'var(--mut)' },
+      { init: 'MV', name: 'Maks Volkov', discipline: 'Strength & conditioning', classes: '20', clients: '38', rating: '4.7 ★', status: 'On leave', statusColor: 'var(--red)' },
+    ];
+    const planRows = [
+      { name: 'CONTENDER', price: '$89 / mo', members: '748', mrr: '$67K', churn: '2.4%', churnColor: 'var(--red)', share: '31%' },
+      { name: 'FIGHTER', price: '$149 / mo', members: '1,254', mrr: '$187K', churn: '1.5%', churnColor: 'var(--txt)', share: '52%' },
+      { name: 'CHAMPION', price: '$249 / mo', members: '410', mrr: '$102K', churn: '0.9%', churnColor: 'var(--txt)', share: '17%' },
+    ];
+    const productsRows = [
+      { name: 'FC Pro leather gloves — 14oz', price: '$120', stock: '34 in stock', stockColor: 'var(--mut)', cat: 'Gear' },
+      { name: 'Competition hand wraps 4.5m', price: '$18', stock: '210 in stock', stockColor: 'var(--mut)', cat: 'Gear' },
+      { name: 'FC training tee — black', price: '$44', stock: '6 left', stockColor: 'var(--red)', cat: 'Apparel' },
+      { name: 'Isolate whey — 2kg', price: '$68', stock: '48 in stock', stockColor: 'var(--mut)', cat: 'Supps' },
+      { name: 'Mouthguard — custom fit', price: '$85', stock: 'Made to order', stockColor: 'var(--dim)', cat: 'Gear' },
+    ];
+    const ordersRows = [
+      { id: '#4821', customer: 'Jade Torres', items: 'Gloves 14oz, wraps ×2', total: '$156', status: 'Shipped', statusColor: 'var(--mut)' },
+      { id: '#4820', customer: 'Marcus Reid', items: 'Training tee ×2', total: '$88', status: 'Packing', statusColor: 'var(--red)' },
+      { id: '#4819', customer: 'Lena Brandt', items: 'Isolate whey', total: '$68', status: 'Shipped', statusColor: 'var(--mut)' },
+      { id: '#4818', customer: 'Otis Blake', items: 'Wraps, mouthguard', total: '$103', status: 'Delivered', statusColor: 'var(--dim)' },
+      { id: '#4817', customer: 'Priya Nair', items: 'Gloves 12oz', total: '$120', status: 'Delivered', statusColor: 'var(--dim)' },
+    ];
+    const postsRows = [
+      { title: 'Inside an 8-week fight camp', tag: 'Fight camp', date: 'Jun 28', views: '4.2K views', status: 'Published', statusColor: 'var(--mut)' },
+      { title: 'The jab is a question', tag: 'Technique', date: 'Jun 21', views: '3.1K views', status: 'Published', statusColor: 'var(--mut)' },
+      { title: 'Cold plunge protocols we use', tag: 'Recovery', date: 'Jun 14', views: '2.8K views', status: 'Published', statusColor: 'var(--mut)' },
+      { title: 'Making weight without losing your mind', tag: 'Nutrition', date: '—', views: '—', status: 'Draft', statusColor: 'var(--red)' },
+      { title: 'August schedule changes', tag: 'Club news', date: '—', views: '—', status: 'Draft', statusColor: 'var(--red)' },
+    ];
+    const yes = { color: 'var(--red)' }, no = { color: 'var(--dim)' };
+    const permDefs = [
+      ['Book classes', 1, 1, 1], ['View own training data', 1, 1, 1], ['Manage client programs', 0, 1, 1], ['Mark attendance', 0, 1, 1],
+      ['Manage members & billing', 0, 0, 1], ['Edit plans & pricing', 0, 0, 1], ['Publish content', 0, 0, 1], ['Manage roles & settings', 0, 0, 1],
+    ];
+    const permMatrix = permDefs.map(([name, m, t, a]) => ({ name,
+      m: m ? '✓' : '—', mColor: m ? 'var(--red)' : 'var(--dim)',
+      t: t ? '✓' : '—', tColor: t ? 'var(--red)' : 'var(--dim)',
+      a: a ? '✓' : '—', aColor: a ? 'var(--red)' : 'var(--dim)' }));
+
+    const skel4 = [1, 2, 3, 4];
+
+    return {
+      isPublic, isAuth, inDash,
+      // dashboard
+      roleTitle, userName, userInitials, userPlan, sideNav,
+      tabTitle: tabTitles[tab] || 'Overview',
+      vsOptions, vsReady: vs === 'ready', vsLoading: vs === 'loading', vsEmpty: vs === 'empty', vsError: vs === 'error',
+      setVsReady: () => this.setState({ vs: 'ready' }),
+      drawerOpen: S.drawer, toggleDrawer: () => this.setState({ drawer: !S.drawer }),
+      notifications, dashStats, skel4,
+      secOverview: tab === 'overview',
+      mOverview: role === 'member' && tab === 'overview', mWorkouts: role === 'member' && tab === 'workouts', mNutrition: role === 'member' && tab === 'nutrition', mBookings: role === 'member' && tab === 'bookings', mPayments: role === 'member' && tab === 'payments', mProfile: role === 'member' && tab === 'profile',
+      tOverview: role === 'trainer' && tab === 'overview', tClients: role === 'trainer' && tab === 'clients', tSchedule: role === 'trainer' && tab === 'schedule', tPrograms: role === 'trainer' && tab === 'programs',
+      aOverview: role === 'admin' && tab === 'overview', aMembers: role === 'admin' && tab === 'members', aTrainers: role === 'admin' && tab === 'trainers', aPlans: role === 'admin' && tab === 'plans', aShop: role === 'admin' && tab === 'shop', aContent: role === 'admin' && tab === 'content', aSettings: role === 'admin' && tab === 'settings',
+      goBookings: setTab('bookings'), goWorkouts: setTab('workouts'), goMembers: setTab('members'),
+      barsWeek, upNext, workoutDays, macros, meals, weekStrip, bookings, invoices, prefs, clubSettings,
+      sessionsToday, clientsRows, programCards, trainerSchedule,
+      revPts, revArea, revLastX, revLastY, revMonths, donutSegs, donutLegend, barsAttendance,
+      recentSignups, membersRows, trainersRows, planRows, productsRows, ordersRows, postsRows, permMatrix,
+      aboutValues, facilityList, classesList, scheduleRows, trainersList, faqs, blogSide, blogGrid, contactRows,
+      testimonials, onboardingSteps, shopStrip,
+      isHome: route==='home', isAbout: route==='about', isClasses: route==='classes', isTrainers: route==='trainers', isPricing: route==='pricing', isBlog: route==='blog', isContact: route==='contact',
+      isLogin: route==='login', isSignup: route==='signup', isForgot: route==='forgot',
+      goHome: g('home'), goAbout: g('about'), goClasses: g('classes'), goTrainers: g('trainers'), goPricing: g('pricing'), goBlog: g('blog'), goContact: g('contact'),
+      goLogin: g('login'), goSignup: g('signup'), goForgot: g('forgot'),
+      showTopBtn: !!S.showTop && !inDash,
+      scrollTop: () => { try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); } },
+      toggleTheme: () => this.setState({ theme: theme === 'dark' ? 'light' : 'dark' }),
+      themeIcon: theme === 'dark' ? '◐' : '◑',
+      loginMember: () => this.setState({ route: 'dash', role: 'member', tab: 'overview', vs: 'ready' }),
+      loginTrainer: () => this.setState({ route: 'dash', role: 'trainer', tab: 'overview', vs: 'ready' }),
+      loginAdmin: () => this.setState({ route: 'dash', role: 'admin', tab: 'overview', vs: 'ready' }),
+      logout: () => this.setState({ route: 'home', role: null }),
+      sendReset: () => this.setState({ resetSent: true }),
+      resetSent: S.resetSent,
+      publicNav, marquee, homeStats, homePrograms, plans, footerCols,
+      setMonthly: () => this.setState({ period: 'monthly' }),
+      setAnnual: () => this.setState({ period: 'annual' }),
+      isMonthly: period === 'monthly', isAnnual: period === 'annual',
+      monthlyBg: period==='monthly' ? 'var(--txt)' : 'transparent', monthlyColor: period==='monthly' ? 'var(--inv)' : 'var(--mut)',
+      annualBg: period==='annual' ? 'var(--txt)' : 'transparent', annualColor: period==='annual' ? 'var(--inv)' : 'var(--mut)',
+    };
+  }
+}
+</script>
+</body>
+</html>
