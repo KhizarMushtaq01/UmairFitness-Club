@@ -27,7 +27,7 @@ export function Sidebar({
   const activeTab = pathname.split("/")[3] ?? "";
 
   return (
-    <aside className="sticky top-0 h-screen bg-[var(--panel)] border-r border-[var(--line)] flex flex-col">
+    <aside className="md:sticky md:top-0 h-full md:h-screen bg-[var(--panel)] border-r border-[var(--line)] flex flex-col">
       <div className="flex items-center gap-[11px] px-[22px] pt-[22px] pb-5 border-b border-[var(--line)]">
         <Logo />
       </div>
@@ -42,7 +42,7 @@ export function Sidebar({
               key={id}
               href={`/dashboard/${base}/${id}`}
               aria-current={active ? "page" : undefined}
-              className="flex items-center gap-3.5 px-3 py-2.5 no-underline"
+              className="flex items-center gap-3.5 px-3 py-3 min-h-[44px] no-underline"
               style={{
                 background: active ? "var(--card)" : "transparent",
                 borderLeft: `2px solid ${active ? "var(--red)" : "transparent"}`,
