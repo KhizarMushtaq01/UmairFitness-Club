@@ -11,7 +11,7 @@ export default async function AdminPlansPage() {
   return (
     <>
       <Topbar title="Membership plans" />
-      <div className="p-7 flex flex-col gap-6 max-w-[1200px]">
+      <div className="p-4 md:p-7 flex flex-col gap-6 max-w-[1200px]">
         {plans.length === 0 ? (
           <EmptyState body="No active plans yet." />
         ) : (

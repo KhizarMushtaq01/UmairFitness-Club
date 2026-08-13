@@ -41,7 +41,7 @@ export function AddProductForm() {
           }
         })
       )}
-      className="bg-[var(--card)] border border-[var(--line)] p-5 flex flex-col gap-3 max-w-[420px]"
+      className="bg-[var(--card)] border border-[var(--line)] p-5 flex flex-col gap-3 w-full max-w-[420px]"
     >
       <input
         {...register("name")}

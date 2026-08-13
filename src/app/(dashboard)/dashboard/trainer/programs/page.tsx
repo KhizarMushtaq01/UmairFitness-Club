@@ -12,11 +12,11 @@ export default async function TrainerProgramsPage() {
       <Topbar title="Programs" />
       {programs.length === 0 ? (
         // EmptyState spans the full width rather than sitting in one grid cell.
-        <div className="p-7 max-w-[1200px]">
+        <div className="p-4 md:p-7 max-w-[1200px]">
           <EmptyState body="No programs created yet." />
         </div>
       ) : (
-        <div className="p-7 grid grid-cols-3 gap-4 max-w-[1200px]">
+        <div className="p-4 md:p-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-[1200px]">
           {programs.map((p) => (
             <div key={p.id} className="bg-[var(--card)] border border-[var(--line)] p-5">
               <div style={{ fontFamily: "var(--font-heading)" }} className="text-xl">

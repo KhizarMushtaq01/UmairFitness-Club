@@ -9,7 +9,7 @@ export function ProfileForm({ initialName }: { initialName: string }) {
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <div className="bg-[var(--card)] border border-[var(--line)] p-5 flex flex-col gap-3 max-w-[420px]">
+    <div className="bg-[var(--card)] border border-[var(--line)] p-5 flex flex-col gap-3 w-full max-w-[420px]">
       <label
         htmlFor="profile-name"
         className="text-[10.5px] font-semibold tracking-[.18em] uppercase text-[var(--dim)]"

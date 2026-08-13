@@ -13,7 +13,7 @@ export default async function AdminShopPage() {
   return (
     <>
       <Topbar title="Shop" />
-      <div className="p-7 flex flex-col gap-6 max-w-[1200px]">
+      <div className="p-4 md:p-7 flex flex-col gap-6 max-w-[1200px]">
         <AddProductForm />
         {products.length === 0 ? (
           <EmptyState body="No products yet." />

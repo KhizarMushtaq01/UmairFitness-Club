@@ -15,7 +15,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   return (
     <>
       <Topbar title={detail.memberName} />
-      <div className="p-7 flex flex-col gap-6 max-w-[1200px]">
+      <div className="p-4 md:p-7 flex flex-col gap-6 max-w-[1200px]">
         <div className="bg-[var(--card)] border border-[var(--line)] p-5 flex justify-between items-center">
           <div>
             <div style={{ fontFamily: "var(--font-heading)" }} className="text-2xl">

@@ -8,7 +8,11 @@ function Shimmer({ className }: { className: string }) {
 
 export function StatRowSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Loading" className="grid grid-cols-4 gap-4">
+    <div
+      aria-busy="true"
+      aria-label="Loading"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+    >
       {[1, 2, 3, 4].map((k) => (
         <Shimmer key={k} className="h-[110px]" />
       ))}

@@ -10,10 +10,10 @@ export default async function MemberProfilePage() {
   return (
     <>
       <Topbar title="Profile & settings" />
-      <div className="p-7 flex flex-col gap-6 max-w-[1200px]">
+      <div className="p-4 md:p-7 flex flex-col gap-6 max-w-[1200px]">
         <ProfileForm initialName={session.user.name} />
         {membership && (
-          <div className="bg-[var(--card)] border border-[var(--line)] p-5 max-w-[420px]">
+          <div className="bg-[var(--card)] border border-[var(--line)] p-5 w-full max-w-[420px]">
             <div className="text-[10.5px] font-semibold tracking-[.18em] uppercase text-[var(--dim)]">
               Plan
             </div>

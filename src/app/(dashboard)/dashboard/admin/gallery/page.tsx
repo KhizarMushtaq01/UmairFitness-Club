@@ -9,11 +9,11 @@ export default async function AdminGalleryPage() {
   return (
     <>
       <Topbar title="Gallery" />
-      <div className="p-7 max-w-[1200px]">
+      <div className="p-4 md:p-7 max-w-[1200px]">
         {images.length === 0 ? (
           <EmptyState body="No gallery images yet." />
         ) : (
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {images.map((img) => (
               <div key={img.id} className="border border-[var(--line)]">
                 {/* next/image rather than a bare <img>: next lint's

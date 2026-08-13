@@ -11,7 +11,7 @@ export default async function AdminTrainersPage() {
   return (
     <>
       <Topbar title="Trainers" />
-      <div className="p-7 flex flex-col gap-6 max-w-[1200px]">
+      <div className="p-4 md:p-7 flex flex-col gap-6 max-w-[1200px]">
         {trainers.length === 0 ? (
           <EmptyState body="No trainers yet." />
         ) : (

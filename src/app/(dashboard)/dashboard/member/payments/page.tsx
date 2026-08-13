@@ -14,7 +14,7 @@ export default async function MemberPaymentsPage() {
   return (
     <>
       <Topbar title="Payments & invoices" />
-      <div className="p-7 flex flex-col gap-6 max-w-[1200px]">
+      <div className="p-4 md:p-7 flex flex-col gap-6 max-w-[1200px]">
         {invoices.length === 0 ? (
           <EmptyState body="No invoices yet." />
         ) : (

@@ -8,8 +8,8 @@ export default async function AdminAnalyticsPage() {
   return (
     <>
       <Topbar title="Analytics" />
-      <div className="p-7 flex flex-col gap-6 max-w-[1200px]">
-        <div className="grid grid-cols-4 gap-4">
+      <div className="p-4 md:p-7 flex flex-col gap-6 max-w-[1200px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((s) => (
             <StatCard key={s.label} {...s} />
           ))}

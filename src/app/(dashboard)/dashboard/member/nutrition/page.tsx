@@ -10,12 +10,12 @@ export default async function MemberNutritionPage() {
   return (
     <>
       <Topbar title="Nutrition" />
-      <div className="p-7 flex flex-col gap-6 max-w-[1200px]">
+      <div className="p-4 md:p-7 flex flex-col gap-6 max-w-[1200px]">
         {!plan ? (
           <EmptyState body="No nutrition plan yet. Ask your coach to set your macro targets." />
         ) : (
           <>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: "Calories", value: `${plan.kcal}` },
                 { label: "Protein", value: `${plan.protein}g` },
