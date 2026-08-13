@@ -33,7 +33,7 @@ export default async function PricingPage() {
               </p>
               <Link
                 href="/contact"
-                className="mt-6 bg-[var(--red)] text-white px-5 py-3 font-bold uppercase tracking-widest text-xs no-underline text-center"
+                className="mt-6 bg-[var(--red)] text-white px-5 py-3 min-h-[44px] font-bold uppercase tracking-widest text-xs no-underline text-center"
               >
                 Enquire
               </Link>
