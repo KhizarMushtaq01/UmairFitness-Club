@@ -24,3 +24,29 @@ export async function getMemberOverview(userId: string) {
 
   return { stats, upNext };
 }
+
+export async function getTrainerOverview(coachId: string) {
+  const [classCount, clientCount] = await Promise.all([
+    db.class.count({ where: { coachId } }),
+    db.programAssignment.count({ where: { program: { coachId } } }),
+  ]);
+  const classesToday = await db.class.findMany({
+    where: { coachId },
+    include: { bookings: true },
+    orderBy: { startsAt: "asc" },
+    take: 4,
+  });
+
+  const stats = [
+    { label: "Classes", value: String(classCount), delta: "", deltaColor: "var(--red)" },
+    { label: "Active clients", value: String(clientCount), delta: "", deltaColor: "var(--red)" },
+  ];
+  const sessionsToday = classesToday.map((c) => ({
+    time: c.startsAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    title: c.title,
+    room: c.room,
+    attendees: `${c.bookings.filter((b) => b.status === "CONFIRMED").length} / ${c.capacity} booked`,
+  }));
+
+  return { stats, sessionsToday };
+}

@@ -14,3 +14,20 @@ export async function getMemberBookings(userId: string) {
     status: b.status,
   }));
 }
+
+export async function getTrainerSchedule(coachId: string) {
+  const classes = await db.class.findMany({
+    where: { coachId },
+    include: { bookings: true },
+    orderBy: { startsAt: "asc" },
+  });
+  return classes.map((c) => ({
+    id: c.id,
+    day: c.startsAt.toLocaleDateString([], { weekday: "short" }),
+    time: c.startsAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    title: c.title,
+    room: c.room,
+    booked: c.bookings.filter((b) => b.status === "CONFIRMED").length,
+    capacity: c.capacity,
+  }));
+}
