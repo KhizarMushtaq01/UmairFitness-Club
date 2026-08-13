@@ -1,4 +1,4 @@
-# Fight Club — Responsive Pass + Marketing Site (Phase 2)
+# Umair Fitness Club — Rebrand, Responsive Pass + Marketing Site (Phase 2)
 
 **Goal:** Make every existing dashboard route usable on phones and tablets,
 then build the public marketing site on top of the now-responsive primitives.
@@ -25,7 +25,12 @@ Two gaps, in the order they must be closed.
 
 **2. There is no public site.** `/` currently redirects to `/dashboard`, so a
 visitor who is not signed in is dropped straight onto a login form with no
-explanation of what Fight Club is.
+explanation of what the gym is.
+
+**3. The app carries the wrong name.** Phase 1 was built as "Fight Club",
+carried over from the design prototype. The product is **Umair Fitness
+Club**. Every marketing page puts the brand in front of the public, so the
+rename has to land before they are written rather than after.
 
 ## Approach
 
@@ -40,6 +45,37 @@ base that already works at every width.
 Rejected alternatives: marketing first (double work, as above); interleaving
 both per-page (no clean checkpoint — impossible to say whether the responsive
 pass is done).
+
+The rename comes before both, because it is a mechanical change that touches
+files the later phases also edit. Doing it last would mean rewriting the
+marketing copy a second time.
+
+---
+
+## Phase 0 — Rebrand to Umair Fitness Club
+
+Five files in application code carry the old name:
+
+| File | Change |
+|------|--------|
+| `src/components/shared/Logo.tsx` | `FC` → `UFC` lettermark, `FIGHT CLUB` → `UMAIR FITNESS CLUB` |
+| `prisma/seed.ts` | six `@fightclub.gym` addresses → `@umairfitness.gym`; product and invoice descriptions |
+| `src/lib/email.ts` | from-address → `Umair Fitness Club <noreply@umairfitness.gym>` |
+| `src/lib/uploads.ts` | Cloudinary folder `fight-club` → `umair-fitness-club` |
+| `package.json` | `name` → `umair-fitness-club` |
+
+The lettermark grows from two glyphs to three. The logo box is currently a
+32×32 square sized for `FC`; `UFC` needs the box widened or the glyph size
+reduced, or the third letter will overflow the clip-path.
+
+Reseeding is required after the seed file changes, and the existing `dev.db`
+carries the old addresses. The sign-in credentials in every doc change with
+it — `danny@umairfitness.gym`, `ana@umairfitness.gym`,
+`marcus@umairfitness.gym`, password unchanged.
+
+The Phase 1 plan and design spec keep the old name. They are a record of what
+was built at the time, not live documentation, and rewriting history there
+buys nothing.
 
 ---
 
@@ -211,6 +247,8 @@ Deliberately excluded, to keep this phase reviewable:
 
 ## Success criteria
 
+- No occurrence of "Fight Club" or `fightclub` remains in `src/`, `prisma/`,
+  or `package.json`; the seeded accounts sign in at their new addresses
 - No horizontal page scroll at 375px on any of the 21 dashboard routes
 - All ten admin nav items reachable on a phone
 - Six marketing pages live, reading real data, signed out
