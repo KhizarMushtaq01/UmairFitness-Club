@@ -1,0 +1,10 @@
+import { StatRowSkeleton, ChartSkeleton } from "@/components/shared/Skeletons";
+
+export default function Loading() {
+  return (
+    <div className="p-7 flex flex-col gap-6">
+      <StatRowSkeleton />
+      <ChartSkeleton />
+    </div>
+  );
+}

@@ -50,3 +50,23 @@ export async function getTrainerOverview(coachId: string) {
 
   return { stats, sessionsToday };
 }
+
+export async function getAdminAnalytics() {
+  const [memberCount, activeCount, checkInsToday] = await Promise.all([
+    db.user.count({ where: { role: "MEMBER" } }),
+    db.membership.count({ where: { status: "ACTIVE" } }),
+    db.attendanceLog.count({
+      where: { checkedInAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } },
+    }),
+  ]);
+  const byPlan = await db.membership.groupBy({ by: ["plan"], _count: { plan: true } });
+
+  const stats = [
+    { label: "Total members", value: String(memberCount), delta: "", deltaColor: "var(--red)" },
+    { label: "Active memberships", value: String(activeCount), delta: "", deltaColor: "var(--red)" },
+    { label: "Check-ins today", value: String(checkInsToday), delta: "", deltaColor: "var(--mut)" },
+  ];
+  const planMix = byPlan.map((p) => ({ plan: p.plan, count: p._count.plan }));
+
+  return { stats, planMix };
+}
