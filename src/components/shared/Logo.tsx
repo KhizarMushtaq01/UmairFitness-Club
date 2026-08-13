@@ -8,7 +8,7 @@ export function Logo() {
       >
         UFC
       </div>
-      <div className="font-[var(--font-heading)] text-[19px] tracking-[.14em] whitespace-nowrap">
+      <div className="font-[var(--font-heading)] text-[16px] tracking-[.08em] whitespace-nowrap">
         UMAIR FITNESS CLUB
       </div>
     </div>
