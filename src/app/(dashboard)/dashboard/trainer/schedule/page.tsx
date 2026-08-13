@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/rbac";
+import { requireSession } from "@/lib/rbac";
 import { getTrainerSchedule } from "@/features/bookings/queries";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
@@ -7,8 +7,8 @@ import { DataTable } from "@/components/shared/DataTable";
 type ScheduleRow = Awaited<ReturnType<typeof getTrainerSchedule>>[number];
 
 export default async function TrainerSchedulePage() {
-  const session = await getSession();
-  const rows = await getTrainerSchedule(session!.user.id);
+  const session = await requireSession();
+  const rows = await getTrainerSchedule(session.user.id);
 
   return (
     <>

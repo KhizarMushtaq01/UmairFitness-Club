@@ -1,11 +1,11 @@
-import { getSession } from "@/lib/rbac";
+import { requireSession } from "@/lib/rbac";
 import { getTrainerPrograms } from "@/features/workouts/queries";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
 
 export default async function TrainerProgramsPage() {
-  const session = await getSession();
-  const programs = await getTrainerPrograms(session!.user.id);
+  const session = await requireSession();
+  const programs = await getTrainerPrograms(session.user.id);
 
   return (
     <>

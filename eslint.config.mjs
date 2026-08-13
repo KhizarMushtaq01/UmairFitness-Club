@@ -18,6 +18,12 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // Vendored design-prototype artifacts kept at the repo root for
+      // reference. They are not part of the Next app (nothing imports them)
+      // and they are pre-React-18 bundled output, so linting them only
+      // produces noise about code we do not own or ship.
+      "support.js",
+      "image-slot.js",
     ],
   },
 ];

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getSession } from "@/lib/rbac";
+import { requireSession } from "@/lib/rbac";
 import { getTrainerClients } from "@/features/workouts/queries";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
@@ -8,8 +8,8 @@ import { DataTable } from "@/components/shared/DataTable";
 type ClientRow = Awaited<ReturnType<typeof getTrainerClients>>[number];
 
 export default async function TrainerClientsPage() {
-  const session = await getSession();
-  const clients = await getTrainerClients(session!.user.id);
+  const session = await requireSession();
+  const clients = await getTrainerClients(session.user.id);
 
   return (
     <>

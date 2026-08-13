@@ -1,12 +1,12 @@
-import { getSession } from "@/lib/rbac";
+import { requireSession } from "@/lib/rbac";
 import { getMemberBookings } from "@/features/bookings/queries";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
 import { BookingsList } from "./BookingsList";
 
 export default async function MemberBookingsPage() {
-  const session = await getSession();
-  const bookings = await getMemberBookings(session!.user.id);
+  const session = await requireSession();
+  const bookings = await getMemberBookings(session.user.id);
 
   return (
     <>

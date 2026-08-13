@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { auth } from "./auth";
 
 export type Role = "MEMBER" | "TRAINER" | "ADMIN";
@@ -13,6 +14,21 @@ type SessionLike = { user: { id: string; role: string } };
 
 export async function getSession() {
   return auth.api.getSession({ headers: await headers() });
+}
+
+/**
+ * Session or bust, for page bodies.
+ *
+ * Next renders a layout and its page in parallel, so the session guard in
+ * (dashboard)/layout.tsx does NOT stop a page body from running for an
+ * anonymous request. Pages that reached for `session!.user` therefore threw
+ * a TypeError on every logged-out hit. Redirecting here ends rendering the
+ * same way the layout does, and hands callers a non-null session.
+ */
+export async function requireSession() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  return session;
 }
 
 export function assertRole<T extends SessionLike>(

@@ -1,11 +1,11 @@
-import { getSession } from "@/lib/rbac";
+import { requireSession } from "@/lib/rbac";
 import { getMemberNutritionPlan } from "@/features/nutrition/queries";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
 
 export default async function MemberNutritionPage() {
-  const session = await getSession();
-  const plan = await getMemberNutritionPlan(session!.user.id);
+  const session = await requireSession();
+  const plan = await getMemberNutritionPlan(session.user.id);
 
   return (
     <>

@@ -1,15 +1,15 @@
 import { notFound } from "next/navigation";
-import { getSession } from "@/lib/rbac";
+import { requireSession } from "@/lib/rbac";
 import { getClientDetail } from "@/features/workouts/queries";
 import { Topbar } from "@/components/shared/Topbar";
 import { MarkAttendanceButton } from "./MarkAttendanceButton";
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const session = await getSession();
+  const session = await requireSession();
   // Scoped by coachId, so a coach can only open their own clients — an
   // unrelated member id 404s rather than leaking another coach's client.
-  const detail = await getClientDetail(session!.user.id, id);
+  const detail = await getClientDetail(session.user.id, id);
   if (!detail) notFound();
 
   return (

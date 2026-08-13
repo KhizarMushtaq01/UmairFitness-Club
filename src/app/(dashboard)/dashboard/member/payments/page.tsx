@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/rbac";
+import { requireSession } from "@/lib/rbac";
 import { getMemberInvoices } from "@/features/payments/queries";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
@@ -8,8 +8,8 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 type InvoiceRow = Awaited<ReturnType<typeof getMemberInvoices>>[number];
 
 export default async function MemberPaymentsPage() {
-  const session = await getSession();
-  const invoices = await getMemberInvoices(session!.user.id);
+  const session = await requireSession();
+  const invoices = await getMemberInvoices(session.user.id);
 
   return (
     <>

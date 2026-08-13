@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/rbac";
+import { requireSession } from "@/lib/rbac";
 import { getMemberWorkoutPlan } from "@/features/workouts/queries";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
@@ -7,8 +7,8 @@ import { DataTable } from "@/components/shared/DataTable";
 type ExerciseRow = { id: string; name: string; sets: string; load: string; tempo: string };
 
 export default async function MemberWorkoutsPage() {
-  const session = await getSession();
-  const plan = await getMemberWorkoutPlan(session!.user.id);
+  const session = await requireSession();
+  const plan = await getMemberWorkoutPlan(session.user.id);
 
   return (
     <>

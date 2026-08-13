@@ -1,12 +1,12 @@
-import { getSession } from "@/lib/rbac";
+import { requireSession } from "@/lib/rbac";
 import { getTrainerOverview } from "@/features/analytics/queries";
 import { StatCard } from "@/components/shared/StatCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
 
 export default async function TrainerOverviewPage() {
-  const session = await getSession();
-  const { stats, sessionsToday } = await getTrainerOverview(session!.user.id);
+  const session = await requireSession();
+  const { stats, sessionsToday } = await getTrainerOverview(session.user.id);
 
   return (
     <>
