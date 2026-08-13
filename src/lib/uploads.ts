@@ -10,7 +10,7 @@ export async function uploadImage(file: Buffer, filename: string) {
     return { url: `https://stub-cdn.local/${encodeURIComponent(filename)}` };
   }
   const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream({ folder: "fight-club" }, (err, res) => {
+    const stream = cloudinary.uploader.upload_stream({ folder: "umair-fitness-club" }, (err, res) => {
       if (err || !res) reject(err ?? new Error("Cloudinary returned no result"));
       else resolve(res as { secure_url: string });
     });

@@ -10,7 +10,7 @@ export async function sendEmail(input: { to: string; subject: string; html: stri
   }
   const resend = new Resend(process.env.RESEND_API_KEY);
   const { data, error } = await resend.emails.send({
-    from: "Fight Club <noreply@fightclub.gym>",
+    from: "Umair Fitness Club <noreply@umairfitness.gym>",
     ...input,
   });
   if (error) throw new Error(error.message);

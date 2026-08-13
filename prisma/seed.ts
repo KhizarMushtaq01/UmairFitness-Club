@@ -5,16 +5,16 @@ async function main() {
   const pw = await hashPassword("password123");
 
   const admin = await db.user.create({
-    data: { email: "danny@fightclub.gym", name: "Danny Okafor", role: "ADMIN", emailVerified: true,
-      accounts: { create: { providerId: "credential", accountId: "danny@fightclub.gym", password: pw } } },
+    data: { email: "danny@umairfitness.gym", name: "Danny Okafor", role: "ADMIN", emailVerified: true,
+      accounts: { create: { providerId: "credential", accountId: "danny@umairfitness.gym", password: pw } } },
   });
   const trainer = await db.user.create({
-    data: { email: "ana@fightclub.gym", name: "Ana Silva", role: "TRAINER", emailVerified: true,
-      accounts: { create: { providerId: "credential", accountId: "ana@fightclub.gym", password: pw } } },
+    data: { email: "ana@umairfitness.gym", name: "Ana Silva", role: "TRAINER", emailVerified: true,
+      accounts: { create: { providerId: "credential", accountId: "ana@umairfitness.gym", password: pw } } },
   });
   const member = await db.user.create({
-    data: { email: "marcus@fightclub.gym", name: "Marcus Reid", role: "MEMBER", emailVerified: true,
-      accounts: { create: { providerId: "credential", accountId: "marcus@fightclub.gym", password: pw } } },
+    data: { email: "marcus@umairfitness.gym", name: "Marcus Reid", role: "MEMBER", emailVerified: true,
+      accounts: { create: { providerId: "credential", accountId: "marcus@umairfitness.gym", password: pw } } },
   });
 
   await db.membership.create({
@@ -70,11 +70,11 @@ async function main() {
   await db.invoice.createMany({
     data: [
       { userId: member.id, desc: "Fighter plan — July", amount: 14900, status: "PAID", issuedAt: new Date("2026-07-01") },
-      { userId: member.id, desc: "Fight Club wraps + gloves", amount: 16400, status: "REFUNDED", issuedAt: new Date("2026-04-22") },
+      { userId: member.id, desc: "Umair Fitness Club wraps + gloves", amount: 16400, status: "REFUNDED", issuedAt: new Date("2026-04-22") },
     ],
   });
 
-  const gloves = await db.product.create({ data: { name: "FC Pro leather gloves — 14oz", price: 12000, stock: 34, category: "Gear" } });
+  const gloves = await db.product.create({ data: { name: "UFC Pro leather gloves — 14oz", price: 12000, stock: 34, category: "Gear" } });
   await db.product.createMany({
     data: [
       { name: "Competition hand wraps 4.5m", price: 1800, stock: 210, category: "Gear" },
