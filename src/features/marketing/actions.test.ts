@@ -38,4 +38,25 @@ describe("sendContactMessage", () => {
     expect(arg.subject).toContain("Ali Raza");
     expect(arg.html).toContain("ali@example.com");
   });
+
+  it("escapes HTML markup in name and message before building the email", async () => {
+    await sendContactMessage({
+      name: '<img src=x onerror=alert(1)>',
+      email: "ali@example.com",
+      message: 'Click <a href="https://evil.example">here</a> & "win" a prize',
+    });
+
+    expect(mockedSend).toHaveBeenCalledTimes(1);
+    const arg = mockedSend.mock.calls[0][0];
+
+    // The raw markup must never appear unescaped in the HTML body.
+    expect(arg.html).not.toContain("<img");
+    expect(arg.html).not.toContain('<a href="https://evil.example">');
+
+    // The escaped form must be present instead.
+    expect(arg.html).toContain("&lt;img src=x onerror=alert(1)&gt;");
+    expect(arg.html).toContain(
+      "Click &lt;a href=&quot;https://evil.example&quot;&gt;here&lt;/a&gt; &amp; &quot;win&quot; a prize"
+    );
+  });
 });
