@@ -25,7 +25,7 @@ export function RoleSelect({ userId, currentRole }: { userId: string; currentRol
             }
           });
         }}
-        className="border border-[var(--line2)] bg-transparent p-2 text-[var(--txt)] text-xs uppercase tracking-widest"
+        className="border border-[var(--line2)] bg-transparent p-2 min-h-[44px] text-[var(--txt)] text-xs uppercase tracking-widest"
       >
         {ROLES.map((r) => (
           <option key={r} value={r}>

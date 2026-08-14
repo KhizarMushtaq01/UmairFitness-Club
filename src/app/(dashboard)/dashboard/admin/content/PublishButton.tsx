@@ -20,7 +20,7 @@ export function PublishButton({ postId }: { postId: string }) {
             }
           })
         }
-        className="border border-[var(--line2)] px-4 py-2 text-xs uppercase tracking-widest"
+        className="border border-[var(--line2)] px-4 py-2 min-h-[44px] inline-flex items-center justify-center text-xs uppercase tracking-widest"
       >
         {isPending ? "Publishing…" : "Publish"}
       </button>
