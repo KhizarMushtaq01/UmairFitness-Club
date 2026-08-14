@@ -51,3 +51,33 @@ export async function getPublicTrainers() {
 export async function getPublicPlans() {
   return Object.entries(PLAN_PRICES).map(([plan, price]) => ({ plan, price }));
 }
+
+export async function getSiteStats() {
+  const [memberCount, coachCount, classCount] = await Promise.all([
+    db.user.count({ where: { role: "MEMBER" } }),
+    db.user.count({ where: { role: "TRAINER" } }),
+    db.class.count(),
+  ]);
+  return { memberCount, classCount, coachCount };
+}
+
+export async function getPublicGallery() {
+  const images = await db.galleryImage.findMany();
+  return images.map((i) => ({ id: i.id, url: i.url, caption: i.caption }));
+}
+
+// PUBLISHED only. The admin getAllPosts() returns drafts on purpose; a public
+// query without this filter would put an unpublished draft on the homepage.
+export async function getPublicPosts() {
+  const posts = await db.post.findMany({
+    where: { status: "PUBLISHED" },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+  });
+  return posts.map((p) => ({
+    id: p.id,
+    title: p.title,
+    tag: p.tag,
+    date: p.createdAt.toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" }),
+  }));
+}
