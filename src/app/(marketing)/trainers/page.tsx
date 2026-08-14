@@ -1,5 +1,9 @@
 import { getPublicTrainers } from "@/features/marketing/queries";
 
+// Reads live data, so this page must not be statically prerendered — an
+// admin's changes need to show up without a redeploy.
+export const dynamic = "force-dynamic";
+
 export default async function TrainersPage() {
   const trainers = await getPublicTrainers();
 

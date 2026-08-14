@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { getPublicClasses, getPublicPlans } from "@/features/marketing/queries";
 
+// Reads live data (classes, plans), so this page must not be statically
+// prerendered — an admin's changes need to show up without a redeploy.
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [classes, plans] = await Promise.all([getPublicClasses(), getPublicPlans()]);
 

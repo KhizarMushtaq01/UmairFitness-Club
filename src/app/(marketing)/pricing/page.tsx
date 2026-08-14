@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { getPublicPlans } from "@/features/marketing/queries";
 
+// Reads live data, so this page must not be statically prerendered — an
+// admin's changes need to show up without a redeploy.
+export const dynamic = "force-dynamic";
+
 const PLAN_BLURB: Record<string, string> = {
   CONTENDER: "Open gym, two classes a week, group programming.",
   FIGHTER: "Unlimited classes, a written block, monthly coach review.",
@@ -33,7 +37,7 @@ export default async function PricingPage() {
               </p>
               <Link
                 href="/contact"
-                className="mt-6 bg-[var(--red)] text-white px-5 py-3 min-h-[44px] font-bold uppercase tracking-widest text-xs no-underline text-center"
+                className="mt-6 bg-[var(--red)] text-white px-5 py-3 min-h-[44px] inline-flex items-center justify-center font-bold uppercase tracking-widest text-xs no-underline text-center"
               >
                 Enquire
               </Link>
