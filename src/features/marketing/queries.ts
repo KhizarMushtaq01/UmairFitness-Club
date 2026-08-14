@@ -43,10 +43,11 @@ export async function getPublicTrainers() {
 // No memberCount here — per-plan member counts are a business metric that
 // does not belong on a public marketing page. See admin-only
 // getPlanBreakdown() in src/features/memberships/queries.ts for that.
+//
+// The catalogue is sourced from PLAN_PRICES itself, not from who currently
+// holds a membership — a public price list must always show every tier,
+// regardless of enrollment. This is why getPublicPlans is synchronous with
+// no DB read: there is nothing to await.
 export async function getPublicPlans() {
-  const byPlan = await db.membership.groupBy({ by: ["plan"], _count: { plan: true } });
-  return byPlan.map((p) => ({
-    plan: p.plan,
-    price: PLAN_PRICES[p.plan] ?? "—",
-  }));
+  return Object.entries(PLAN_PRICES).map(([plan, price]) => ({ plan, price }));
 }

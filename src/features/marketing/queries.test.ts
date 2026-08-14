@@ -4,7 +4,6 @@ vi.mock("@/lib/db", () => ({
   db: {
     class: { findMany: vi.fn() },
     user: { findMany: vi.fn() },
-    membership: { groupBy: vi.fn() },
   },
 }));
 
@@ -13,7 +12,6 @@ import { getPublicClasses, getPublicTrainers, getPublicPlans } from "./queries";
 
 const mockedClasses = db.class.findMany as unknown as Mock;
 const mockedUsers = db.user.findMany as unknown as Mock;
-const mockedGroupBy = db.membership.groupBy as unknown as Mock;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -62,11 +60,23 @@ describe("getPublicClasses", () => {
 });
 
 describe("getPublicPlans", () => {
-  it("returns a price for each seeded plan", async () => {
-    mockedGroupBy.mockResolvedValue([{ plan: "FIGHTER", _count: { plan: 1 } }]);
-
+  it("returns all three tiers with their prices, regardless of who is enrolled", async () => {
+    // The seed data has exactly one membership (FIGHTER). If getPublicPlans
+    // were still derived from enrollment, only one tier would come back —
+    // this asserts the full catalogue is independent of that.
     const plans = await getPublicPlans();
 
-    expect(plans).toEqual([{ plan: "FIGHTER", price: "$149 / mo" }]);
+    expect(plans).toEqual([
+      { plan: "CONTENDER", price: "$89 / mo" },
+      { plan: "FIGHTER", price: "$149 / mo" },
+      { plan: "CHAMPION", price: "$249 / mo" },
+    ]);
+  });
+
+  it("does not touch the database", async () => {
+    await getPublicPlans();
+
+    expect(mockedClasses).not.toHaveBeenCalled();
+    expect(mockedUsers).not.toHaveBeenCalled();
   });
 });
