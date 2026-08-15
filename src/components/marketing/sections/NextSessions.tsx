@@ -1,5 +1,7 @@
 // src/components/marketing/sections/NextSessions.tsx
+import Link from "next/link";
 import { Reveal } from "@/components/marketing/Reveal";
+import { BOOKINGS_SIGN_IN_HREF } from "@/lib/site-links";
 
 export function NextSessions({
   classes,
@@ -42,6 +44,12 @@ export function NextSessions({
                 <div className="text-[var(--red)] text-sm font-semibold mt-3">
                   {c.spotsLeft} spots left
                 </div>
+                <Link
+                  href={BOOKINGS_SIGN_IN_HREF}
+                  className="min-h-[44px] inline-flex items-center text-[var(--txt)] text-[10.5px] font-bold uppercase tracking-widest no-underline mt-2"
+                >
+                  Sign in to book →
+                </Link>
               </div>
             </Reveal>
           ))}

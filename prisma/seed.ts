@@ -1,4 +1,5 @@
 import { db } from "../src/lib/db";
+import { GALLERY_SEED_IMAGES } from "../src/lib/images";
 import { hashPassword } from "better-auth/crypto";
 
 async function main() {
@@ -91,10 +92,11 @@ async function main() {
     ],
   });
 
+  // Captions come from the alt text so the two never drift apart. An admin
+  // replacing these through the gallery screen is the expected end state —
+  // these are a starting set, not the club's real photographs.
   await db.galleryImage.createMany({
-    data: [
-      { url: "/uploads/pasted-1783022551988-0.png", caption: "Floor session" },
-    ],
+    data: GALLERY_SEED_IMAGES.map((img) => ({ url: img.url, caption: img.alt })),
   });
 
   await db.notification.create({

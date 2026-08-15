@@ -19,6 +19,14 @@ export const POLICY_LINKS = [
   { href: "/cookies", label: "Cookies" },
 ] as const;
 
+/**
+ * Where a public "book this class" link sends a visitor. Booking lives behind
+ * auth, so the honest path is sign-in first and the member's bookings page
+ * after — see safeRedirect(), which is what keeps `next` from becoming an
+ * open redirect.
+ */
+export const BOOKINGS_SIGN_IN_HREF = "/login?next=%2Fdashboard%2Fmember%2Fbookings";
+
 export const NAV_LINKS = [
   { href: "/about", label: "About" },
   { href: "/classes", label: "Classes" },

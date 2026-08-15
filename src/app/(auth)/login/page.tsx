@@ -1,14 +1,16 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "@/features/auth/schemas";
+import { safeRedirect } from "@/features/auth/safe-redirect";
 import { authClient } from "@/lib/auth-client";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
@@ -23,7 +25,10 @@ export default function LoginPage() {
       setServerError(error.message ?? "Login failed");
       return;
     }
-    router.push("/dashboard");
+    // ?next= lets a public "Book this class" link land the member on their
+    // bookings instead of the dashboard root. safeRedirect is what stops that
+    // parameter from becoming an open redirect.
+    router.push(safeRedirect(searchParams.get("next")));
   };
 
   return (
@@ -64,5 +69,16 @@ export default function LoginPage() {
         </Link>
       </p>
     </form>
+  );
+}
+
+export default function LoginPage() {
+  // useSearchParams() opts a component into client-side rendering, so it needs
+  // a Suspense boundary above it or this statically rendered route fails the
+  // build.
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

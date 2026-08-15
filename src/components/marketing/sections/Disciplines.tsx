@@ -1,6 +1,9 @@
 // src/components/marketing/sections/Disciplines.tsx
+import Image from "next/image";
+import Link from "next/link";
 import { Reveal } from "@/components/marketing/Reveal";
 import { TiltCard } from "@/components/marketing/TiltCard";
+import { DISCIPLINE_IMAGES } from "@/lib/images";
 
 const DISCIPLINES = [
   {
@@ -29,19 +32,39 @@ export function Disciplines() {
         </h2>
       </Reveal>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
-        {DISCIPLINES.map((d, i) => (
-          <Reveal key={d.name} delay={i * 0.1}>
-            <TiltCard className="bg-[var(--card)] border border-[var(--line)] p-6 h-full">
-              <div style={{ fontFamily: "var(--font-heading)" }} className="text-[28px]">
-                {d.name}
-              </div>
-              <div className="text-[var(--red)] text-[10.5px] font-semibold tracking-[.18em] uppercase mt-1">
-                {d.detail}
-              </div>
-              <p className="text-[var(--mut)] text-sm mt-4">{d.blurb}</p>
-            </TiltCard>
-          </Reveal>
-        ))}
+        {DISCIPLINES.map((d, i) => {
+          const img = DISCIPLINE_IMAGES[d.name];
+          return (
+            <Reveal key={d.name} delay={i * 0.1}>
+              <TiltCard className="bg-[var(--card)] border border-[var(--line)] h-full flex flex-col">
+                <div className="relative h-[180px] overflow-hidden">
+                  <Image
+                    src={img.url}
+                    alt={img.alt}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-6 flex flex-col flex-1">
+                  <div style={{ fontFamily: "var(--font-heading)" }} className="text-[28px]">
+                    {d.name}
+                  </div>
+                  <div className="text-[var(--red)] text-[10.5px] font-semibold tracking-[.18em] uppercase mt-1">
+                    {d.detail}
+                  </div>
+                  <p className="text-[var(--mut)] text-sm mt-4 flex-1">{d.blurb}</p>
+                  <Link
+                    href="/classes"
+                    className="min-h-[44px] inline-flex items-center text-[var(--txt)] text-xs uppercase tracking-widest no-underline mt-4"
+                  >
+                    See the timetable →
+                  </Link>
+                </div>
+              </TiltCard>
+            </Reveal>
+          );
+        })}
       </div>
     </section>
   );
