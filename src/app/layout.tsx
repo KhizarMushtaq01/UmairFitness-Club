@@ -12,7 +12,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="dark">
-      <body className={`${anton.variable} ${bebas.variable} ${inter.variable} font-sans`}>
+      {/* Extensions (Grammarly, ColorZilla, dark-mode tools) add attributes to
+          <body> before React hydrates, which React reports as a mismatch we
+          cannot fix from here. suppressHydrationWarning applies to this
+          element alone, one level deep — mismatches inside our own components
+          still surface, so this hides the noise without hiding real bugs. */}
+      <body
+        suppressHydrationWarning
+        className={`${anton.variable} ${bebas.variable} ${inter.variable} font-sans`}
+      >
         {children}
       </body>
     </html>
