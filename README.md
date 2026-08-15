@@ -14,7 +14,12 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3200](http://localhost:3200) with your browser to see the result.
+
+The port is pinned to 3200 in the `dev` script rather than left on Next's
+default. Auth is origin-bound — `BETTER_AUTH_URL` in `.env` must name the same
+port the server listens on — and sharing an origin with another local project
+means sharing its service workers, caches and cookies too.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
