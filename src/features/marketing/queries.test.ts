@@ -2,13 +2,22 @@ import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 
 vi.mock("@/lib/db", () => ({
   db: {
-    class: { findMany: vi.fn() },
-    user: { findMany: vi.fn() },
+    class: { findMany: vi.fn(), count: vi.fn() },
+    user: { findMany: vi.fn(), count: vi.fn() },
+    post: { findMany: vi.fn() },
+    galleryImage: { findMany: vi.fn() },
   },
 }));
 
 import { db } from "@/lib/db";
-import { getPublicClasses, getPublicTrainers, getPublicPlans } from "./queries";
+import {
+  getPublicClasses,
+  getPublicTrainers,
+  getPublicPlans,
+  getPublicPosts,
+  getPublicGallery,
+  getSiteStats,
+} from "./queries";
 
 const mockedClasses = db.class.findMany as unknown as Mock;
 const mockedUsers = db.user.findMany as unknown as Mock;
@@ -78,5 +87,66 @@ describe("getPublicPlans", () => {
 
     expect(mockedClasses).not.toHaveBeenCalled();
     expect(mockedUsers).not.toHaveBeenCalled();
+  });
+});
+
+describe("getPublicPosts", () => {
+  it("asks the database for published posts only", async () => {
+    (db.post.findMany as unknown as Mock).mockResolvedValue([]);
+
+    await getPublicPosts();
+
+    const arg = (db.post.findMany as unknown as Mock).mock.calls[0][0];
+    expect(arg.where).toEqual({ status: "PUBLISHED" });
+  });
+
+  it("never returns views or authorId", async () => {
+    (db.post.findMany as unknown as Mock).mockResolvedValue([
+      {
+        id: "p1",
+        title: "Inside an 8-week fight camp",
+        tag: "Fight camp",
+        status: "PUBLISHED",
+        views: 4200,
+        authorId: "u1",
+        createdAt: new Date("2026-07-01T10:00:00"),
+      },
+    ]);
+
+    const posts = await getPublicPosts();
+
+    expect(Object.keys(posts[0]).sort()).toEqual(["date", "id", "tag", "title"]);
+    expect(JSON.stringify(posts)).not.toContain("4200");
+    expect(JSON.stringify(posts)).not.toContain("authorId");
+  });
+});
+
+describe("getPublicGallery", () => {
+  it("returns id, url and caption", async () => {
+    (db.galleryImage.findMany as unknown as Mock).mockResolvedValue([
+      { id: "g1", url: "/uploads/floor.png", caption: "Floor session" },
+    ]);
+
+    await expect(getPublicGallery()).resolves.toEqual([
+      { id: "g1", url: "/uploads/floor.png", caption: "Floor session" },
+    ]);
+  });
+});
+
+describe("getSiteStats", () => {
+  it("counts members and coaches by role, and all classes", async () => {
+    // Keyed on the role filter rather than call order — an implementation that
+    // counted the wrong role would still pass an order-based mock.
+    (db.user.count as unknown as Mock).mockImplementation(
+      ({ where }: { where: { role: string } }) =>
+        Promise.resolve(where.role === "MEMBER" ? 12 : where.role === "TRAINER" ? 3 : 0)
+    );
+    (db.class.count as unknown as Mock).mockResolvedValue(7);
+
+    await expect(getSiteStats()).resolves.toEqual({
+      memberCount: 12,
+      classCount: 7,
+      coachCount: 3,
+    });
   });
 });
