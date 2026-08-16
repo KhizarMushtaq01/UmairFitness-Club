@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { computeFreezeAllowance } from "@/features/profile/freeze-allowance";
 
 export async function getAllMembers() {
   const members = await db.user.findMany({
@@ -45,4 +46,41 @@ export async function getPlanBreakdown() {
     price: PLAN_PRICES[p.plan] ?? "—",
     memberCount: p._count.plan,
   }));
+}
+
+export async function getMembershipStatus(userId: string) {
+  const membership = await db.membership.findFirst({
+    where: { userId },
+    include: { freezes: true },
+  });
+  if (!membership) return null;
+
+  const now = new Date();
+  const frozen = membership.frozenUntil !== null && membership.frozenUntil > now;
+  const { usedWeeks, remainingWeeks } = computeFreezeAllowance(
+    membership.freezes,
+    now.getFullYear()
+  );
+
+  const DAY = 24 * 60 * 60 * 1000;
+  const noticeEnd = membership.cancelRequestedAt
+    ? new Date(membership.cancelRequestedAt.getTime() + 30 * DAY)
+    : null;
+  const cancelEffectiveAt =
+    noticeEnd && membership.renewsAt && membership.renewsAt > noticeEnd
+      ? membership.renewsAt
+      : noticeEnd;
+
+  return {
+    plan: membership.plan,
+    status: membership.status,
+    // Derived, not stored — adding FROZEN to the stored values would mean
+    // updating every status colour map and the seed to say what frozenUntil
+    // already says.
+    displayStatus: frozen ? "FROZEN" : membership.status,
+    frozenUntil: frozen ? membership.frozenUntil : null,
+    cancelEffectiveAt,
+    usedWeeks,
+    remainingWeeks,
+  };
 }

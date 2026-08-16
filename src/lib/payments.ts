@@ -33,3 +33,15 @@ export async function createInvoiceCheckout(input: {
   if (!session.url) throw new Error("Stripe returned a checkout session with no URL");
   return { url: session.url };
 }
+
+/**
+ * Real Stripe subscription cancel when STRIPE_SECRET_KEY is set, otherwise a
+ * logged stub. Dev leaves the key unset, so the stub path is what runs.
+ */
+export async function cancelSubscription(input: { membershipId: string }) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.log("[stub:payments] cancelSubscription", input);
+    return { id: `stub-cancel-${crypto.randomUUID()}` };
+  }
+  throw new Error("cancelSubscription: live Stripe path not implemented yet");
+}
