@@ -20,7 +20,14 @@ export async function markNotificationRead(rawInput: MarkNotificationReadInput) 
     where: { id: input.notificationId },
     data: { readAt: new Date() },
   });
-  revalidatePath("/dashboard");
+  // "/dashboard" (default type: "page") only invalidates dashboard/page.tsx,
+  // which is a redirect-only route that renders nothing — it never reaches
+  // src/app/(dashboard)/dashboard/{member,trainer,admin}/layout.tsx, where
+  // getNotifications actually runs. The "layout" type walks the segment
+  // tree under /dashboard and invalidates those layouts too. Without this,
+  // the bell only updates because NotificationBell.tsx also calls
+  // router.refresh() client-side — this call was inert on its own.
+  revalidatePath("/dashboard", "layout");
   return { ok: true as const };
 }
 
@@ -32,6 +39,13 @@ export async function markAllNotificationsRead() {
     where: { userId: session.user.id, readAt: null },
     data: { readAt: new Date() },
   });
-  revalidatePath("/dashboard");
+  // "/dashboard" (default type: "page") only invalidates dashboard/page.tsx,
+  // which is a redirect-only route that renders nothing — it never reaches
+  // src/app/(dashboard)/dashboard/{member,trainer,admin}/layout.tsx, where
+  // getNotifications actually runs. The "layout" type walks the segment
+  // tree under /dashboard and invalidates those layouts too. Without this,
+  // the bell only updates because NotificationBell.tsx also calls
+  // router.refresh() client-side — this call was inert on its own.
+  revalidatePath("/dashboard", "layout");
   return { ok: true as const };
 }

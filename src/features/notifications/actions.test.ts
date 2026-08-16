@@ -13,12 +13,14 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/rbac";
+import { revalidatePath } from "next/cache";
 import { markNotificationRead, markAllNotificationsRead } from "./actions";
 
 const mockedGetSession = getSession as unknown as Mock;
 const mockedFindUnique = db.notification.findUnique as unknown as Mock;
 const mockedUpdate = db.notification.update as unknown as Mock;
 const mockedUpdateMany = db.notification.updateMany as unknown as Mock;
+const mockedRevalidatePath = revalidatePath as unknown as Mock;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -51,6 +53,18 @@ describe("markNotificationRead", () => {
       data: { readAt: expect.any(Date) },
     });
   });
+
+  it("revalidates the dashboard layouts, not just the redirect-only page", async () => {
+    // dashboard/page.tsx is redirect-only and never renders the layouts
+    // where getNotifications runs — revalidatePath("/dashboard") alone
+    // (the default type: "page") does not reach them. Must pass "layout".
+    mockedGetSession.mockResolvedValue({ user: { id: "u1", role: "MEMBER" } });
+    mockedFindUnique.mockResolvedValue({ id: "n1", userId: "u1" });
+
+    await markNotificationRead({ notificationId: "n1" });
+
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/dashboard", "layout");
+  });
 });
 
 describe("markAllNotificationsRead", () => {
@@ -62,5 +76,13 @@ describe("markAllNotificationsRead", () => {
       where: { userId: "u1", readAt: null },
       data: { readAt: expect.any(Date) },
     });
+  });
+
+  it("revalidates the dashboard layouts, not just the redirect-only page", async () => {
+    mockedGetSession.mockResolvedValue({ user: { id: "u1", role: "MEMBER" } });
+
+    await markAllNotificationsRead();
+
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/dashboard", "layout");
   });
 });
