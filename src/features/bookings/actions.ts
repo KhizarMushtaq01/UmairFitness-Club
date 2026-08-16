@@ -1,8 +1,9 @@
 "use server";
 import { db } from "@/lib/db";
 import { getSession, assertRole } from "@/lib/rbac";
-import { cancelBookingSchema, type CancelBookingInput } from "./schemas";
+import { cancelBookingSchema, type CancelBookingInput, bookClassSchema, type BookClassInput } from "./schemas";
 import { revalidatePath } from "next/cache";
+import { notify } from "@/features/notifications/notify";
 
 export async function cancelBooking(rawInput: CancelBookingInput) {
   const input = cancelBookingSchema.parse(rawInput);
@@ -19,4 +20,47 @@ export async function cancelBooking(rawInput: CancelBookingInput) {
   await db.booking.update({ where: { id: input.bookingId }, data: { status: "CANCELLED" } });
   revalidatePath("/dashboard/member/bookings");
   return { ok: true as const };
+}
+
+export async function bookClass(rawInput: BookClassInput) {
+  const input = bookClassSchema.parse(rawInput);
+  const session = await getSession();
+  assertRole(session, ["MEMBER", "TRAINER", "ADMIN"]);
+  const userId = session.user.id;
+
+  // Counting seats and taking one must be atomic. Without the transaction,
+  // two members clicking the last seat both read "one free" and both confirm.
+  const booked = await db.$transaction(async (tx) => {
+    const klass = await tx.class.findUnique({ where: { id: input.classId } });
+    if (!klass) throw new Error("Not found: no such class");
+
+    // Only an active booking blocks a rebooking — a member who cancelled
+    // is free to book the class again.
+    const existing = await tx.booking.findFirst({
+      where: { userId, classId: input.classId, status: { in: ["CONFIRMED", "WAITLIST"] } },
+    });
+    if (existing) throw new Error("Conflict: already booked onto this class");
+
+    const confirmed = await tx.booking.count({
+      where: { classId: input.classId, status: "CONFIRMED" },
+    });
+    const status = confirmed < klass.capacity ? "CONFIRMED" : "WAITLIST";
+    await tx.booking.create({ data: { userId, classId: input.classId, status } });
+
+    return { status, title: klass.title };
+  });
+
+  // Outside the transaction on purpose: notify sends email, and holding a
+  // database transaction open across a network call is how deadlocks start.
+  await notify(
+    userId,
+    booked.status === "CONFIRMED" ? "Booked in" : "Added to the waitlist",
+    booked.status === "CONFIRMED"
+      ? `Your seat for ${booked.title} is confirmed.`
+      : `${booked.title} is full. We'll confirm you automatically if a seat frees up.`
+  );
+
+  revalidatePath("/dashboard/member/classes");
+  revalidatePath("/dashboard/member/bookings");
+  return { ok: true as const, status: booked.status as "CONFIRMED" | "WAITLIST" };
 }
