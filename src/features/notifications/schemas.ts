@@ -1,4 +1,4 @@
 import { z } from "zod";
 
-export const updateProfileSchema = z.object({ name: z.string().min(2) });
-export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export const markNotificationReadSchema = z.object({ notificationId: z.string().min(1) });
+export type MarkNotificationReadInput = z.infer<typeof markNotificationReadSchema>;

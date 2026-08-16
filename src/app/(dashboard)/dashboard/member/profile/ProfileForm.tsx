@@ -1,6 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
-import { updateProfile } from "@/features/notifications/actions";
+import { updateProfile } from "@/features/profile/actions";
 
 export function ProfileForm({ initialName }: { initialName: string }) {
   const [name, setName] = useState(initialName);
