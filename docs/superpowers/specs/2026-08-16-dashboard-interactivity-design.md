@@ -294,3 +294,44 @@ survive the migration); non-admins cannot edit plans.
 - **Tests run under `npm test`** (vitest). Pure functions (`computeStreak`,
   `computeFreezeAllowance`) are tested directly; actions are tested with the
   existing mocked-`db` pattern from `features/*/actions.test.ts`.
+
+## Responsive Requirements
+
+Every surface in this phase works on phones, tablets, and desktop. Phase 2
+already established the conventions; new UI follows them rather than inventing
+its own, and no new code reintroduces a fixed-width layout.
+
+**Inherited conventions, applied to all new work:**
+
+- Page padding `p-4 md:p-7`
+- Card and stat grids `grid-cols-1 sm:grid-cols-2 lg:grid-cols-N`
+- Forms `w-full max-w-[420px]` — full width on a phone, capped on desktop
+- Tabular data goes through `DataTable`, which already wraps itself in
+  `overflow-x-auto`; any new raw `<table>` gets the same wrapper
+- Interactive elements are at least 44px tall on mobile (handoff §8)
+- New `loading.tsx` skeletons match the responsive grid they stand in for, so
+  the layout does not jump when data arrives
+
+**Per-surface decisions:**
+
+| Surface | Behaviour |
+|---|---|
+| `member/classes` list | Card grid, `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`. Book button full-width on mobile, ≥44px. Seat count and time must not wrap into each other at 320px. |
+| Notification panel | The one genuinely new responsive problem — see below |
+| `admin/members/[id]` | Stat row `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`; the bookings/invoices/attendance tables use `DataTable` |
+| Members search form | Input plus submit stack vertically below `sm`, inline above |
+| Edit forms (product, post, plan, freeze/cancel) | Same `w-full max-w-[420px]` pattern as `AddProductForm` |
+| Gallery upload | File input full-width on mobile; the grid keeps its existing `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` |
+| Row-level action buttons (advance order, unpublish, delete) | ≥44px targets; on phones the row stacks so buttons never crowd the label |
+
+**Notification panel.** A narrow absolutely-positioned popover anchored to the
+bell overflows the viewport on a phone. So the panel is width-constrained and
+right-anchored from `sm` up, but below `sm` it becomes a full-width sheet
+pinned under the Topbar, with `max-h` and internal scrolling so a long list
+never pushes the page. This mirrors how `DashboardShell` already treats the
+sidebar: a drawer on phones, permanent from `md` up.
+
+**Verification.** Responsiveness is checked by reading the rendered pages at
+320px, 768px, and 1280px — no page may scroll horizontally at 320px, and no
+interactive target may fall below 44px there. Unit tests do not cover layout;
+this check is manual and belongs in each implementation step's verification.
