@@ -10,15 +10,48 @@ export async function cancelBooking(rawInput: CancelBookingInput) {
   const session = await getSession();
   assertRole(session, ["MEMBER", "TRAINER", "ADMIN"]);
 
-  // Role alone isn't enough here — the booking must also belong to the caller,
-  // otherwise any signed-in member could cancel anyone's booking.
-  const booking = await db.booking.findUnique({ where: { id: input.bookingId } });
-  if (!booking || booking.userId !== session.user.id) {
-    throw new Error("Forbidden: not your booking");
+  const promoted = await db.$transaction(async (tx) => {
+    // Role alone isn't enough here — the booking must also belong to the
+    // caller, otherwise any signed-in member could cancel anyone's booking.
+    const booking = await tx.booking.findUnique({ where: { id: input.bookingId } });
+    if (!booking || booking.userId !== session.user.id) {
+      throw new Error("Forbidden: not your booking");
+    }
+
+    await tx.booking.update({ where: { id: input.bookingId }, data: { status: "CANCELLED" } });
+
+    // Cancelling a waitlist entry frees no seat, so nobody moves up.
+    if (booking.status !== "CONFIRMED") return null;
+
+    const next = await tx.booking.findFirst({
+      where: { classId: booking.classId, status: "WAITLIST" },
+      orderBy: { createdAt: "asc" },
+    });
+    if (!next) return null;
+
+    await tx.booking.update({ where: { id: next.id }, data: { status: "CONFIRMED" } });
+    return next;
+  });
+
+  // Outside the transaction on purpose, same reasoning as bookClass: notify
+  // sends email and its in-app db.notification.create write is unguarded. If
+  // that throws here, the cancellation (and any promotion) has already
+  // committed, so this action must not turn that success into a rejection
+  // the caller sees as failure.
+  if (promoted) {
+    try {
+      await notify(
+        promoted.userId,
+        "A seat opened up",
+        "You were on the waitlist and your place is now confirmed."
+      );
+    } catch (err) {
+      console.error("[cancelBooking] notify failed after promotion commit", err);
+    }
   }
 
-  await db.booking.update({ where: { id: input.bookingId }, data: { status: "CANCELLED" } });
   revalidatePath("/dashboard/member/bookings");
+  revalidatePath("/dashboard/member/classes");
   return { ok: true as const };
 }
 

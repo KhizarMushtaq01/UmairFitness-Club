@@ -45,8 +45,6 @@ import { notify } from "@/features/notifications/notify";
 import { cancelBooking, bookClass } from "./actions";
 
 const mockedGetSession = getSession as unknown as Mock;
-const mockedFindUnique = db.booking.findUnique as unknown as Mock;
-const mockedUpdate = db.booking.update as unknown as Mock;
 const tx = (db as unknown as { __tx: {
   class: { findUnique: Mock };
   booking: { findUnique: Mock; findFirst: Mock; count: Mock; create: Mock; update: Mock };
@@ -59,32 +57,86 @@ beforeEach(() => {
 });
 
 describe("cancelBooking", () => {
-  it("throws if the booking belongs to a different user", async () => {
+  beforeEach(() => {
     mockedGetSession.mockResolvedValue({ user: { id: "u1", role: "MEMBER" } });
-    mockedFindUnique.mockResolvedValue({ id: "b1", userId: "someone-else" });
+    tx.booking.findFirst.mockResolvedValue(null);
+  });
+
+  it("throws if the booking belongs to a different user", async () => {
+    tx.booking.findUnique.mockResolvedValue({ id: "b1", userId: "someone-else", status: "CONFIRMED" });
 
     await expect(cancelBooking({ bookingId: "b1" })).rejects.toThrow("Forbidden");
-    expect(mockedUpdate).not.toHaveBeenCalled();
+    expect(tx.booking.update).not.toHaveBeenCalled();
   });
 
   it("throws if there is no active session", async () => {
     mockedGetSession.mockResolvedValue(null);
 
     await expect(cancelBooking({ bookingId: "b1" })).rejects.toThrow("Unauthorized");
-    expect(mockedUpdate).not.toHaveBeenCalled();
+    expect(tx.booking.update).not.toHaveBeenCalled();
   });
 
   it("cancels the booking when it belongs to the caller", async () => {
-    mockedGetSession.mockResolvedValue({ user: { id: "u1", role: "MEMBER" } });
-    mockedFindUnique.mockResolvedValue({ id: "b1", userId: "u1" });
-    mockedUpdate.mockResolvedValue({ id: "b1", status: "CANCELLED" });
+    tx.booking.findUnique.mockResolvedValue({ id: "b1", userId: "u1", classId: "c1", status: "CONFIRMED" });
 
     const result = await cancelBooking({ bookingId: "b1" });
+
     expect(result).toEqual({ ok: true });
-    expect(mockedUpdate).toHaveBeenCalledWith({
+    expect(tx.booking.update).toHaveBeenCalledWith({
       where: { id: "b1" },
       data: { status: "CANCELLED" },
     });
+  });
+
+  it("promotes the oldest waitlisted member into the freed seat", async () => {
+    tx.booking.findUnique.mockResolvedValue({ id: "b1", userId: "u1", classId: "c1", status: "CONFIRMED" });
+    tx.booking.findFirst.mockResolvedValue({ id: "b2", userId: "u2", classId: "c1", status: "WAITLIST" });
+
+    await cancelBooking({ bookingId: "b1" });
+
+    expect(tx.booking.findFirst).toHaveBeenCalledWith({
+      where: { classId: "c1", status: "WAITLIST" },
+      orderBy: { createdAt: "asc" },
+    });
+    expect(tx.booking.update).toHaveBeenCalledWith({
+      where: { id: "b2" },
+      data: { status: "CONFIRMED" },
+    });
+    expect(mockedNotify).toHaveBeenCalledWith("u2", expect.stringContaining("seat"), expect.any(String));
+    // Same reasoning as bookClass's ordering test: a THAT-was-called
+    // assertion can't tell "notify after commit" from "notify from inside
+    // the transaction callback" — only the recorded order can.
+    expect(order).toEqual(["transaction", "notify"]);
+  });
+
+  it("promotes nobody when a waitlist booking is cancelled", async () => {
+    tx.booking.findUnique.mockResolvedValue({ id: "b3", userId: "u1", classId: "c1", status: "WAITLIST" });
+
+    await cancelBooking({ bookingId: "b3" });
+
+    // No seat was freed, so the waitlist is never consulted.
+    expect(tx.booking.findFirst).not.toHaveBeenCalled();
+    expect(mockedNotify).not.toHaveBeenCalled();
+  });
+
+  it("promotes nobody when the waitlist is empty", async () => {
+    tx.booking.findUnique.mockResolvedValue({ id: "b1", userId: "u1", classId: "c1", status: "CONFIRMED" });
+    tx.booking.findFirst.mockResolvedValue(null);
+
+    await cancelBooking({ bookingId: "b1" });
+
+    expect(tx.booking.update).toHaveBeenCalledTimes(1); // the cancel itself only
+    expect(mockedNotify).not.toHaveBeenCalled();
+  });
+
+  it("still resolves ok when notify fails after a promotion, since the transaction already committed", async () => {
+    tx.booking.findUnique.mockResolvedValue({ id: "b1", userId: "u1", classId: "c1", status: "CONFIRMED" });
+    tx.booking.findFirst.mockResolvedValue({ id: "b2", userId: "u2", classId: "c1", status: "WAITLIST" });
+    mockedNotify.mockRejectedValueOnce(new Error("notify boom"));
+
+    const result = await cancelBooking({ bookingId: "b1" });
+
+    expect(result).toEqual({ ok: true });
   });
 });
 
