@@ -11,6 +11,7 @@ import { revalidatePath } from "next/cache";
 import { computeFreezeAllowance } from "./freeze-allowance";
 import { cancelSubscription } from "@/lib/payments";
 import { notify } from "@/features/notifications/notify";
+import { DAY_MS, CANCELLATION_NOTICE_DAYS } from "./constants";
 
 export async function updateProfile(rawInput: UpdateProfileInput) {
   const input = updateProfileSchema.parse(rawInput);
@@ -23,38 +24,59 @@ export async function updateProfile(rawInput: UpdateProfileInput) {
   return { ok: true as const };
 }
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-const CANCELLATION_NOTICE_DAYS = 30;
-
 export async function freezeMembership(rawInput: FreezeMembershipInput) {
   const input = freezeMembershipSchema.parse(rawInput);
   const session = await getSession();
   assertRole(session, ["MEMBER", "TRAINER", "ADMIN"]);
 
-  const membership = await db.membership.findFirst({
-    where: { userId: session.user.id },
-    include: { freezes: true },
+  // The allowance read, the allowance check, and both writes must be one
+  // atomic unit. Without a transaction, two concurrent requests can both
+  // read the same `freezes`, both pass the remaining-allowance check, and
+  // both write — bypassing the 8-week annual cap the freezes table exists
+  // to enforce. A transaction also means a failure on the second write
+  // (membership.update) rolls back the first (membershipFreeze.create)
+  // instead of leaving allowance spent with no freeze recorded.
+  const to = await db.$transaction(async (tx) => {
+    const membership = await tx.membership.findFirst({
+      where: { userId: session.user.id },
+      include: { freezes: true },
+    });
+    if (!membership) throw new Error("Not found: no membership to freeze");
+
+    // The UI hides the freeze control once a cancellation is pending, but
+    // server actions are public endpoints — the UI hiding a control is not
+    // enforcement. Reject here too.
+    if (membership.cancelRequestedAt) {
+      throw new Error("Conflict: membership has a pending cancellation");
+    }
+
+    // A member already frozen into the future extends that freeze rather
+    // than truncating it: starting the new window at `frozenUntil` (when
+    // it's still ahead of us) means "2 more weeks" actually adds 2 weeks on
+    // top of what they already have, instead of overwriting frozenUntil
+    // with an earlier date computed from today.
+    const now = new Date();
+    const from = membership.frozenUntil && membership.frozenUntil > now ? membership.frozenUntil : now;
+
+    // Charge the allowance check to the same year the freeze row is charged
+    // to (computeFreezeAllowance buckets by `from.getFullYear()`). `from`
+    // can land in the calendar year after `now` — e.g. an existing
+    // frozenUntil of next Jan 3 — so checking `new Date().getFullYear()`
+    // here would check this year's usage while charging next year's.
+    const { remainingWeeks } = computeFreezeAllowance(membership.freezes, from.getFullYear());
+    if (input.weeks > remainingWeeks) {
+      throw new Error(`Freeze allowance exceeded: ${remainingWeeks} week(s) left this year`);
+    }
+
+    const to = new Date(from.getTime() + input.weeks * 7 * DAY_MS);
+
+    await tx.membershipFreeze.create({ data: { membershipId: membership.id, from, to } });
+    await tx.membership.update({ where: { id: membership.id }, data: { frozenUntil: to } });
+
+    return to;
   });
-  if (!membership) throw new Error("Not found: no membership to freeze");
 
-  const { remainingWeeks } = computeFreezeAllowance(membership.freezes, new Date().getFullYear());
-  if (input.weeks > remainingWeeks) {
-    throw new Error(`Freeze allowance exceeded: ${remainingWeeks} week(s) left this year`);
-  }
-
-  // A member already frozen into the future extends that freeze rather than
-  // truncating it: starting the new window at `frozenUntil` (when it's still
-  // ahead of us) means "2 more weeks" actually adds 2 weeks on top of what
-  // they already have, instead of overwriting frozenUntil with an earlier
-  // date computed from today.
-  const now = new Date();
-  const from = membership.frozenUntil && membership.frozenUntil > now ? membership.frozenUntil : now;
-  const to = new Date(from.getTime() + input.weeks * 7 * DAY_MS);
-
-  await db.membershipFreeze.create({ data: { membershipId: membership.id, from, to } });
-  await db.membership.update({ where: { id: membership.id }, data: { frozenUntil: to } });
-
-  // Outside the writes on purpose, same reasoning as bookClass/cancelBooking:
+  // Outside the transaction on purpose, same reasoning as bookClass/cancelBooking:
   // the freeze has already committed by this point, so a notify failure must
   // not turn that success into a rejection the caller sees as failure.
   try {
