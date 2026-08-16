@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { computeFreezeAllowance } from "@/features/profile/freeze-allowance";
+import { DAY_MS, CANCELLATION_NOTICE_DAYS } from "@/features/profile/constants";
 
 export async function getAllMembers() {
   const members = await db.user.findMany({
@@ -62,9 +63,8 @@ export async function getMembershipStatus(userId: string) {
     now.getFullYear()
   );
 
-  const DAY = 24 * 60 * 60 * 1000;
   const noticeEnd = membership.cancelRequestedAt
-    ? new Date(membership.cancelRequestedAt.getTime() + 30 * DAY)
+    ? new Date(membership.cancelRequestedAt.getTime() + CANCELLATION_NOTICE_DAYS * DAY_MS)
     : null;
   const cancelEffectiveAt =
     noticeEnd && membership.renewsAt && membership.renewsAt > noticeEnd
