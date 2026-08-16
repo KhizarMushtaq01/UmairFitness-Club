@@ -33,6 +33,11 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 beforeEach(() => {
   vi.clearAllMocks();
   mockedGetSession.mockResolvedValue({ user: { id: "u1", role: "MEMBER" } });
+  // clearAllMocks resets call history but not a mock's implementation, so a
+  // mockRejectedValue set by one test would otherwise leak into every test
+  // that runs after it. Re-pin the happy-path defaults each time.
+  mockedNotify.mockResolvedValue(undefined);
+  mockedCancelSub.mockResolvedValue({ id: "stub-cancel" });
 });
 
 describe("freezeMembership", () => {
@@ -99,6 +104,46 @@ describe("freezeMembership", () => {
     expect(mockedCreateFreeze).toHaveBeenCalledTimes(1);
     expect(mockedUpdateMembership).toHaveBeenCalledTimes(1);
   });
+
+  it("extends an existing future freeze instead of truncating it", async () => {
+    // Already frozen through day 29 from today; only 1 week used so far this
+    // year, well within the cap.
+    const existingFrozenUntil = new Date(Date.now() + 29 * DAY_MS);
+    mockedFindMembership.mockResolvedValue({
+      id: "m1",
+      userId: "u1",
+      frozenUntil: existingFrozenUntil,
+      freezes: [{ from: new Date(), to: existingFrozenUntil }],
+    });
+
+    const result = await freezeMembership({ weeks: 2 });
+
+    // "2 more weeks" must add on top of the existing frozenUntil, not
+    // overwrite it with an earlier date computed from today. This must fail
+    // if `from` reverts to `new Date()`.
+    expect(result.frozenUntil.getTime()).toBeGreaterThan(existingFrozenUntil.getTime());
+    const freezeArg = mockedCreateFreeze.mock.calls[0][0].data;
+    expect(freezeArg.from.getTime()).toBe(existingFrozenUntil.getTime());
+  });
+
+  it("starts a new freeze from today when the previous frozenUntil is in the past", async () => {
+    const staleFrozenUntil = new Date(Date.now() - 5 * DAY_MS);
+    mockedFindMembership.mockResolvedValue({
+      id: "m1",
+      userId: "u1",
+      frozenUntil: staleFrozenUntil,
+      freezes: [],
+    });
+
+    const before = Date.now();
+    const result = await freezeMembership({ weeks: 1 });
+    const after = Date.now();
+
+    const freezeArg = mockedCreateFreeze.mock.calls[0][0].data;
+    expect(freezeArg.from.getTime()).toBeGreaterThanOrEqual(before);
+    expect(freezeArg.from.getTime()).toBeLessThanOrEqual(after);
+    expect(result.frozenUntil.getTime()).toBeGreaterThan(staleFrozenUntil.getTime());
+  });
 });
 
 describe("cancelMembership", () => {
@@ -154,5 +199,15 @@ describe("cancelMembership", () => {
     expect(result.ok).toBe(true);
     expect(mockedUpdateMembership).toHaveBeenCalledTimes(1);
     expect(mockedCancelSub).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not record a cancellation when the payment provider fails", async () => {
+    mockedFindMembership.mockResolvedValue({ id: "m1", userId: "u1", renewsAt: null, freezes: [] });
+    mockedCancelSub.mockRejectedValue(new Error("stripe unreachable"));
+
+    // Unlike notify, a failed cancelSubscription must propagate — the DB
+    // must not claim a cancellation that billing never honoured.
+    await expect(cancelMembership()).rejects.toThrow("stripe unreachable");
+    expect(mockedUpdateMembership).not.toHaveBeenCalled();
   });
 });

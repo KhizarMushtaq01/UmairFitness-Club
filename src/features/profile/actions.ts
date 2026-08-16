@@ -42,7 +42,13 @@ export async function freezeMembership(rawInput: FreezeMembershipInput) {
     throw new Error(`Freeze allowance exceeded: ${remainingWeeks} week(s) left this year`);
   }
 
-  const from = new Date();
+  // A member already frozen into the future extends that freeze rather than
+  // truncating it: starting the new window at `frozenUntil` (when it's still
+  // ahead of us) means "2 more weeks" actually adds 2 weeks on top of what
+  // they already have, instead of overwriting frozenUntil with an earlier
+  // date computed from today.
+  const now = new Date();
+  const from = membership.frozenUntil && membership.frozenUntil > now ? membership.frozenUntil : now;
   const to = new Date(from.getTime() + input.weeks * 7 * DAY_MS);
 
   await db.membershipFreeze.create({ data: { membershipId: membership.id, from, to } });
@@ -81,11 +87,18 @@ export async function cancelMembership() {
   const effectiveAt =
     membership.renewsAt && membership.renewsAt > noticeEnd ? membership.renewsAt : noticeEnd;
 
+  // Deliberately unguarded, unlike the notify() call below: if Stripe fails
+  // to cancel, we must NOT record a cancellation the billing system never
+  // honoured. Letting this throw keeps the member with access and keeps them
+  // billed — consistent and recoverable. The alternative (DB says cancelled,
+  // Stripe still charges) leaves them believing they cancelled while still
+  // being billed, which is worse and harder to unwind.
+  await cancelSubscription({ membershipId: membership.id });
+
   await db.membership.update({
     where: { id: membership.id },
     data: { cancelRequestedAt: new Date() },
   });
-  await cancelSubscription({ membershipId: membership.id });
 
   // Outside the writes on purpose, same reasoning as bookClass/cancelBooking:
   // the cancellation has already committed by this point, so a notify
