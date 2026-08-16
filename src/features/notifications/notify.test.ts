@@ -52,4 +52,17 @@ describe("notify", () => {
     expect(mockedCreate).toHaveBeenCalledTimes(1);
     expect(mockedSendEmail).not.toHaveBeenCalled();
   });
+
+  it("escapes HTML-special characters in the body before interpolating into the email", async () => {
+    // body can come from admin-controlled data (e.g. bookClass passes
+    // class.title into it) — unescaped interpolation into `html` is a
+    // stored/reflected XSS funnel every future caller inherits.
+    await notify("u1", "Booked", `<img src=x onerror="alert(1)"> & "quoted" 'text'`);
+
+    const { html } = mockedSendEmail.mock.calls[0][0];
+    expect(html).not.toContain("<img");
+    expect(html).toBe(
+      `<p>&lt;img src=x onerror=&quot;alert(1)&quot;&gt; &amp; &quot;quoted&quot; &#39;text&#39;</p>`
+    );
+  });
 });
