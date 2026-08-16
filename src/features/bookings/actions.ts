@@ -52,13 +52,22 @@ export async function bookClass(rawInput: BookClassInput) {
 
   // Outside the transaction on purpose: notify sends email, and holding a
   // database transaction open across a network call is how deadlocks start.
-  await notify(
-    userId,
-    booked.status === "CONFIRMED" ? "Booked in" : "Added to the waitlist",
-    booked.status === "CONFIRMED"
-      ? `Your seat for ${booked.title} is confirmed.`
-      : `${booked.title} is full. We'll confirm you automatically if a seat frees up.`
-  );
+  //
+  // The booking has already committed by this point. notify's own doc
+  // comment calls it best-effort, but its in-app `db.notification.create`
+  // write is unguarded — if that throws, this action must not turn an
+  // already-successful booking into a rejection the caller sees as failure.
+  try {
+    await notify(
+      userId,
+      booked.status === "CONFIRMED" ? "Booked in" : "Added to the waitlist",
+      booked.status === "CONFIRMED"
+        ? `Your seat for ${booked.title} is confirmed.`
+        : `${booked.title} is full. We'll confirm you automatically if a seat frees up.`
+    );
+  } catch (err) {
+    console.error("[bookClass] notify failed after booking commit", err);
+  }
 
   revalidatePath("/dashboard/member/classes");
   revalidatePath("/dashboard/member/bookings");
