@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { computeStreak } from "./streak";
 
 export async function getMemberWorkoutPlan(userId: string) {
   const assignment = await db.programAssignment.findFirst({
@@ -69,4 +70,21 @@ export async function getTrainerPrograms(coachId: string) {
     weeks: p.weeks,
     assignedCount: p._count.assignments,
   }));
+}
+
+export async function getAttendanceSummary(userId: string) {
+  const logs = await db.attendanceLog.findMany({
+    where: { userId },
+    orderBy: { checkedInAt: "desc" },
+  });
+
+  return {
+    streak: computeStreak(logs.map((l) => l.checkedInAt)),
+    total: logs.length,
+    recent: logs.slice(0, 8).map((l) => ({
+      id: l.id,
+      date: l.checkedInAt.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }),
+      time: l.checkedInAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    })),
+  };
 }
