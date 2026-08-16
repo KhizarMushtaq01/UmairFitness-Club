@@ -71,14 +71,16 @@ model Verification {
 }
 
 model Membership {
-  id          String    @id @default(cuid())
-  userId      String
-  plan        String    // CONTENDER | FIGHTER | CHAMPION
-  status      String    // ACTIVE | TRIAL | AT_RISK | CANCELLED
-  renewsAt    DateTime?
-  frozenUntil DateTime?
-  createdAt   DateTime  @default(now())
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String    @id @default(cuid())
+  userId            String
+  plan              String    // CONTENDER | FIGHTER | CHAMPION
+  status            String    // ACTIVE | TRIAL | AT_RISK | CANCELLED
+  renewsAt          DateTime?
+  frozenUntil       DateTime?
+  cancelRequestedAt DateTime?
+  createdAt         DateTime  @default(now())
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  freezes           MembershipFreeze[]
 }
 
 model Class {
@@ -235,4 +237,13 @@ model AttendanceLog {
   userId      String
   checkedInAt DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MembershipFreeze {
+  id           String     @id @default(cuid())
+  membershipId String
+  from         DateTime
+  to           DateTime
+  createdAt    DateTime   @default(now())
+  membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
 }
