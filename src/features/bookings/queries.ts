@@ -31,3 +31,30 @@ export async function getTrainerSchedule(coachId: string) {
     capacity: c.capacity,
   }));
 }
+
+export async function getBookableClasses(userId: string) {
+  const classes = await db.class.findMany({
+    where: { startsAt: { gte: new Date() } },
+    include: { coach: true, bookings: true },
+    orderBy: { startsAt: "asc" },
+  });
+
+  return classes.map((c) => {
+    const confirmed = c.bookings.filter((b) => b.status === "CONFIRMED").length;
+    const mine = c.bookings.find(
+      (b) => b.userId === userId && (b.status === "CONFIRMED" || b.status === "WAITLIST")
+    );
+    return {
+      id: c.id,
+      title: c.title,
+      discipline: c.discipline,
+      coach: c.coach.name,
+      room: c.room,
+      day: c.startsAt.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }),
+      time: c.startsAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      seatsLeft: Math.max(0, c.capacity - confirmed),
+      capacity: c.capacity,
+      myStatus: (mine?.status ?? null) as "CONFIRMED" | "WAITLIST" | null,
+    };
+  });
+}

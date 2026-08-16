@@ -1,6 +1,7 @@
 export const NAV_BY_ROLE = {
   MEMBER: [
     ["overview", "Overview"],
+    ["classes", "Book a class"],
     ["workouts", "Workout plan"],
     ["nutrition", "Nutrition"],
     ["bookings", "Bookings"],
