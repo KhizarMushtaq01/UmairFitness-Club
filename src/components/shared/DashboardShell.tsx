@@ -12,15 +12,33 @@ export function useSidebar() {
   return useContext(SidebarContext);
 }
 
+export type NotificationItem = {
+  id: string;
+  title: string;
+  body: string;
+  createdAt: string;
+  read: boolean;
+};
+
+type NotificationState = { items: NotificationItem[]; unread: number };
+
+const NotificationContext = createContext<NotificationState>({ items: [], unread: 0 });
+
+export function useNotifications() {
+  return useContext(NotificationContext);
+}
+
 export function DashboardShell({
   role,
   userName,
   userPlan,
+  notifications,
   children,
 }: {
   role: Role;
   userName: string;
   userPlan: string;
+  notifications: NotificationState;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -42,35 +60,37 @@ export function DashboardShell({
   }, [open]);
 
   return (
-    <SidebarContext.Provider value={{ open, setOpen }}>
-      <div className="grid grid-cols-1 md:grid-cols-[248px_1fr] min-h-screen items-start">
-        {/* Permanent sidebar, tablet and up */}
-        <div className="hidden md:block">
-          <Sidebar role={role} userName={userName} userPlan={userPlan} />
-        </div>
-
-        {/* Drawer, phones only */}
-        {open && (
-          <div className="md:hidden fixed inset-0 z-50 flex">
-            <div
-              id="dashboard-nav-drawer"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Navigation"
-              className="w-[248px] max-w-[80%] h-full overflow-y-auto"
-            >
-              <Sidebar role={role} userName={userName} userPlan={userPlan} />
-            </div>
-            <button
-              aria-label="Close navigation"
-              onClick={() => setOpen(false)}
-              className="flex-1 h-full bg-black/60"
-            />
+    <NotificationContext.Provider value={notifications}>
+      <SidebarContext.Provider value={{ open, setOpen }}>
+        <div className="grid grid-cols-1 md:grid-cols-[248px_1fr] min-h-screen items-start">
+          {/* Permanent sidebar, tablet and up */}
+          <div className="hidden md:block">
+            <Sidebar role={role} userName={userName} userPlan={userPlan} />
           </div>
-        )}
 
-        <div className="min-w-0">{children}</div>
-      </div>
-    </SidebarContext.Provider>
+          {/* Drawer, phones only */}
+          {open && (
+            <div className="md:hidden fixed inset-0 z-50 flex">
+              <div
+                id="dashboard-nav-drawer"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Navigation"
+                className="w-[248px] max-w-[80%] h-full overflow-y-auto"
+              >
+                <Sidebar role={role} userName={userName} userPlan={userPlan} />
+              </div>
+              <button
+                aria-label="Close navigation"
+                onClick={() => setOpen(false)}
+                className="flex-1 h-full bg-black/60"
+              />
+            </div>
+          )}
+
+          <div className="min-w-0">{children}</div>
+        </div>
+      </SidebarContext.Provider>
+    </NotificationContext.Provider>
   );
 }

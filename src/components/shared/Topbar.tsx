@@ -1,5 +1,6 @@
 "use client";
 import { useSidebar } from "./DashboardShell";
+import { NotificationBell } from "./NotificationBell";
 
 export function Topbar({ title }: { title: string }) {
   const { open, setOpen } = useSidebar();
@@ -24,6 +25,7 @@ export function Topbar({ title }: { title: string }) {
       >
         {title}
       </div>
+      <NotificationBell />
     </div>
   );
 }
