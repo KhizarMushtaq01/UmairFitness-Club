@@ -30,6 +30,14 @@ export function MembershipControls(m: Props) {
 
   const cancelled = m.cancelEffectiveAt !== null;
 
+  // router.refresh() re-fetches props but does not remount this component, so
+  // `weeks` can outlive a shrunk `remainingWeeks` after a successful freeze.
+  // Clamping here (rather than resetting `weeks` on success) makes a
+  // mismatched selection unrepresentable: the <select> can never show a value
+  // with no matching <option>, and a freeze can never submit more weeks than
+  // the current allowance.
+  const selectedWeeks = Math.min(weeks, m.remainingWeeks);
+
   return (
     <div className="bg-[var(--card)] border border-[var(--line)] p-5 w-full max-w-[420px] flex flex-col gap-4">
       <div>
@@ -62,7 +70,7 @@ export function MembershipControls(m: Props) {
             <div className="flex flex-col sm:flex-row gap-2">
               <select
                 id="freeze-weeks"
-                value={weeks}
+                value={selectedWeeks}
                 onChange={(e) => setWeeks(Number(e.target.value))}
                 disabled={m.remainingWeeks === 0}
                 className="border border-[var(--line2)] bg-transparent p-3 min-h-[44px] text-[var(--txt)] flex-1"
@@ -75,7 +83,12 @@ export function MembershipControls(m: Props) {
               </select>
               <button
                 disabled={isPending || m.remainingWeeks === 0}
-                onClick={() => run(() => freezeMembership({ weeks }), "Couldn't freeze. Try again.")}
+                onClick={() =>
+                  run(
+                    () => freezeMembership({ weeks: selectedWeeks }),
+                    "Couldn't freeze — your allowance may have changed. Reload and try again."
+                  )
+                }
                 className="border border-[var(--line2)] px-4 py-2 min-h-[44px] inline-flex items-center justify-center text-xs uppercase tracking-widest disabled:text-[var(--dim)]"
               >
                 Freeze
