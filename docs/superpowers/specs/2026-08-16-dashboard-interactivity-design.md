@@ -59,6 +59,22 @@ feature set below in scope.
   existing stub adapters, as in every prior phase.
 - Trainer dashboard changes. Not requested.
 
+### Known gap: nothing executes a cancellation once it becomes effective
+
+`cancelMembership` records `cancelRequestedAt` and computes `cancelEffectiveAt`
+(30 days out, or `renewsAt` if later), but nothing ever flips the membership's
+`status` to `CANCELLED` when that date passes — there is no cron job and no
+lazy status check on read. `getMembershipStatus` keeps returning the same
+`cancelEffectiveAt` it always did, so `MembershipControls` renders
+"Cancellation requested — active until {date}" indefinitely, including long
+after that date has come and gone, with the freeze control still hidden and
+no further action ever taken.
+
+This is real infrastructure — a scheduled job, or a lazy "is `cancelEffectiveAt`
+in the past?" check made at read time (e.g. inside `getMembershipStatus`, or
+wherever access is gated) — that this phase never scoped. It needs to land in
+a follow-up before cancellation can be considered complete end-to-end.
+
 ## Build Order
 
 One migration batch first, then feature-vertical (each feature complete
