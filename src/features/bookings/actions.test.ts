@@ -88,6 +88,22 @@ describe("cancelBooking", () => {
     });
   });
 
+  it("notifies the member who cancelled", async () => {
+    tx.booking.findUnique.mockResolvedValue({ id: "b1", userId: "u1", classId: "c1", status: "CONFIRMED" });
+    tx.booking.findFirst.mockResolvedValue(null);
+
+    await cancelBooking({ bookingId: "b1" });
+
+    // Spec §2: cancelled is one of the four notify-worthy booking events.
+    // Before this fix, only the promoted member (if any) was ever notified —
+    // the member who cancelled was told nothing.
+    expect(mockedNotify).toHaveBeenCalledWith(
+      "u1",
+      expect.stringContaining("cancel"),
+      expect.any(String)
+    );
+  });
+
   it("promotes the oldest waitlisted member into the freed seat", async () => {
     tx.booking.findUnique.mockResolvedValue({ id: "b1", userId: "u1", classId: "c1", status: "CONFIRMED" });
     tx.booking.findFirst.mockResolvedValue({ id: "b2", userId: "u2", classId: "c1", status: "WAITLIST" });
@@ -103,20 +119,24 @@ describe("cancelBooking", () => {
       data: { status: "CONFIRMED" },
     });
     expect(mockedNotify).toHaveBeenCalledWith("u2", expect.stringContaining("seat"), expect.any(String));
+    // Both the cancelling member and the promoted member are notified, and
+    // both notifications happen strictly after the transaction commits.
     // Same reasoning as bookClass's ordering test: a THAT-was-called
     // assertion can't tell "notify after commit" from "notify from inside
     // the transaction callback" — only the recorded order can.
-    expect(order).toEqual(["transaction", "notify"]);
+    expect(order).toEqual(["transaction", "notify", "notify"]);
   });
 
-  it("promotes nobody when a waitlist booking is cancelled", async () => {
+  it("notifies the cancelling member even when there is nobody to promote", async () => {
     tx.booking.findUnique.mockResolvedValue({ id: "b3", userId: "u1", classId: "c1", status: "WAITLIST" });
 
     await cancelBooking({ bookingId: "b3" });
 
-    // No seat was freed, so the waitlist is never consulted.
+    // No seat was freed, so the waitlist is never consulted and nobody is
+    // promoted — but the cancelling member is still told.
     expect(tx.booking.findFirst).not.toHaveBeenCalled();
-    expect(mockedNotify).not.toHaveBeenCalled();
+    expect(mockedNotify).toHaveBeenCalledTimes(1);
+    expect(mockedNotify).toHaveBeenCalledWith("u1", expect.any(String), expect.any(String));
   });
 
   it("promotes nobody when the waitlist is empty", async () => {
@@ -126,7 +146,7 @@ describe("cancelBooking", () => {
     await cancelBooking({ bookingId: "b1" });
 
     expect(tx.booking.update).toHaveBeenCalledTimes(1); // the cancel itself only
-    expect(mockedNotify).not.toHaveBeenCalled();
+    expect(mockedNotify).toHaveBeenCalledTimes(1); // the cancelling member only
   });
 
   it("still resolves ok when notify fails after a promotion, since the transaction already committed", async () => {
@@ -138,12 +158,32 @@ describe("cancelBooking", () => {
 
     expect(result).toEqual({ ok: true });
   });
+
+  it("still notifies the promoted member when notifying the cancelling member fails", async () => {
+    tx.booking.findUnique.mockResolvedValue({ id: "b1", userId: "u1", classId: "c1", status: "CONFIRMED" });
+    tx.booking.findFirst.mockResolvedValue({ id: "b2", userId: "u2", classId: "c1", status: "WAITLIST" });
+    // Only the first notify() call (cancelling member) rejects — the second
+    // (promoted member) must still fire. One failing notify must not
+    // suppress the other.
+    mockedNotify.mockRejectedValueOnce(new Error("notify boom"));
+
+    const result = await cancelBooking({ bookingId: "b1" });
+
+    expect(result).toEqual({ ok: true });
+    expect(mockedNotify).toHaveBeenCalledTimes(2);
+    expect(mockedNotify).toHaveBeenNthCalledWith(2, "u2", expect.stringContaining("seat"), expect.any(String));
+  });
 });
 
 describe("bookClass", () => {
   beforeEach(() => {
     mockedGetSession.mockResolvedValue({ user: { id: "u1", role: "MEMBER" } });
-    tx.class.findUnique.mockResolvedValue({ id: "c1", title: "Boxing 101", capacity: 2 });
+    tx.class.findUnique.mockResolvedValue({
+      id: "c1",
+      title: "Boxing 101",
+      capacity: 2,
+      startsAt: new Date(Date.now() + 60 * 60 * 1000),
+    });
     tx.booking.findFirst.mockResolvedValue(null);
     tx.booking.create.mockResolvedValue({ id: "b9" });
   });
@@ -178,7 +218,12 @@ describe("bookClass", () => {
   it("confirms under a capacity other than the fixture default", async () => {
     // capacity 5, three confirmed already: 3 < 5 must confirm. A hardcoded
     // `< 2` comparison would wrongly waitlist this (3 is not < 2).
-    tx.class.findUnique.mockResolvedValue({ id: "c1", title: "Boxing 101", capacity: 5 });
+    tx.class.findUnique.mockResolvedValue({
+      id: "c1",
+      title: "Boxing 101",
+      capacity: 5,
+      startsAt: new Date(Date.now() + 60 * 60 * 1000),
+    });
     tx.booking.count.mockResolvedValue(3);
 
     const result = await bookClass({ classId: "c1" });
@@ -217,6 +262,22 @@ describe("bookClass", () => {
     tx.class.findUnique.mockResolvedValue(null);
 
     await expect(bookClass({ classId: "nope" })).rejects.toThrow("Not found");
+    expect(tx.booking.create).not.toHaveBeenCalled();
+  });
+
+  it("rejects booking a class that has already started", async () => {
+    // getBookableClasses filters to startsAt >= now, but bookClass is a
+    // separately callable server action — it must enforce this itself
+    // rather than trust that callers only ever pass classIds the query
+    // surfaced.
+    tx.class.findUnique.mockResolvedValue({
+      id: "c1",
+      title: "Boxing 101",
+      capacity: 2,
+      startsAt: new Date(Date.now() - 60 * 60 * 1000),
+    });
+
+    await expect(bookClass({ classId: "c1" })).rejects.toThrow("Conflict");
     expect(tx.booking.create).not.toHaveBeenCalled();
   });
 
