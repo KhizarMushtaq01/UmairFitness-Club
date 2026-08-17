@@ -2,6 +2,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { bookClass } from "@/features/bookings/actions";
+import { seatLabel } from "@/features/bookings/seat-label";
 
 type Props = {
   id: string;
@@ -39,7 +40,7 @@ export function ClassCard(c: Props) {
         <span>{c.coach}</span>
       </div>
       <div className="text-xs" style={{ color: full ? "var(--red)" : "var(--mut)" }}>
-        {full ? `Full · ${c.capacity} seats` : `${c.seatsLeft} of ${c.capacity} seats left`}
+        {seatLabel(c.seatsLeft, c.capacity)}
       </div>
 
       <button
