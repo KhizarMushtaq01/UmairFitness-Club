@@ -84,3 +84,74 @@ export async function getMembershipStatus(userId: string) {
     remainingWeeks,
   };
 }
+
+/**
+ * One member, everything the admin detail route shows.
+ *
+ * Returns null for anyone who is not a MEMBER: this backs
+ * admin/members/[id], not a generic user viewer, so a trainer id must 404.
+ *
+ * Every history list is capped at 20 rows — the tables show a recent window,
+ * while the headline counts come from _count so they stay accurate for a
+ * member with years of history.
+ */
+export async function getMemberDetail(id: string) {
+  const user = await db.user.findUnique({
+    where: { id },
+    include: {
+      memberships: { orderBy: { createdAt: "desc" }, take: 1 },
+      bookings: { orderBy: { createdAt: "desc" }, take: 20, include: { class: true } },
+      invoices: { orderBy: { issuedAt: "desc" }, take: 20 },
+      attendance: { orderBy: { checkedInAt: "desc" }, take: 20 },
+      _count: { select: { bookings: true, attendance: true } },
+    },
+  });
+  if (!user || user.role !== "MEMBER") return null;
+
+  const ms = user.memberships[0];
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    plan: ms?.plan ?? "—",
+    status: ms?.status ?? "NONE",
+    statusColor: ms?.status === "AT_RISK" ? "var(--red)" : "var(--mut)",
+    memberSince: user.createdAt.toLocaleDateString([], {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }),
+    bookingCount: user._count.bookings,
+    attendanceCount: user._count.attendance,
+    bookings: user.bookings.map((b) => ({
+      id: b.id,
+      title: b.class.title,
+      day: b.class.startsAt.toLocaleDateString([], {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+      status: b.status,
+    })),
+    invoices: user.invoices.map((i) => ({
+      id: i.id,
+      desc: i.desc,
+      amount: `$${(i.amount / 100).toFixed(2)}`,
+      status: i.status,
+      issuedAt: i.issuedAt.toLocaleDateString([], {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+    })),
+    attendance: user.attendance.map((a) => ({
+      id: a.id,
+      date: a.checkedInAt.toLocaleDateString([], {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+    })),
+  };
+}
