@@ -77,17 +77,13 @@ export async function freezeMembership(rawInput: FreezeMembershipInput) {
   });
 
   // Outside the transaction on purpose, same reasoning as bookClass/cancelBooking:
-  // the freeze has already committed by this point, so a notify failure must
-  // not turn that success into a rejection the caller sees as failure.
-  try {
-    await notify(
-      session.user.id,
-      "Membership frozen",
-      `Your membership is frozen until ${to.toLocaleDateString()}.`
-    );
-  } catch (err) {
-    console.error("[freezeMembership] notify failed after freeze commit", err);
-  }
+  // the freeze has already committed by this point, and notify never rejects
+  // (see its doc comment), so no guard is needed here.
+  await notify(
+    session.user.id,
+    "Membership frozen",
+    `Your membership is frozen until ${to.toLocaleDateString()}.`
+  );
   revalidatePath("/dashboard/member/profile");
   return { ok: true as const, frozenUntil: to };
 }
@@ -123,18 +119,13 @@ export async function cancelMembership() {
   });
 
   // Outside the writes on purpose, same reasoning as bookClass/cancelBooking:
-  // the cancellation has already committed by this point, so a notify
-  // failure must not turn that success into a rejection the caller sees as
-  // failure.
-  try {
-    await notify(
-      session.user.id,
-      "Cancellation requested",
-      `Your membership stays active until ${effectiveAt.toLocaleDateString()}.`
-    );
-  } catch (err) {
-    console.error("[cancelMembership] notify failed after cancellation commit", err);
-  }
+  // the cancellation has already committed by this point, and notify never
+  // rejects (see its doc comment), so no guard is needed here.
+  await notify(
+    session.user.id,
+    "Cancellation requested",
+    `Your membership stays active until ${effectiveAt.toLocaleDateString()}.`
+  );
   revalidatePath("/dashboard/member/profile");
   return { ok: true as const, effectiveAt };
 }

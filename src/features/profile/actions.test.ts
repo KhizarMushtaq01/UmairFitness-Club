@@ -195,17 +195,6 @@ describe("freezeMembership", () => {
     expect(mockedFreezeFindMembership).not.toHaveBeenCalled();
   });
 
-  it("still resolves when notify rejects after the freeze has committed", async () => {
-    mockedFreezeFindMembership.mockResolvedValue({ id: "m1", userId: "u1", freezes: [] });
-    mockedNotify.mockRejectedValue(new Error("email service down"));
-
-    const result = await freezeMembership({ weeks: 2 });
-
-    expect(result.ok).toBe(true);
-    expect(mockedCreateFreeze).toHaveBeenCalledTimes(1);
-    expect(mockedFreezeUpdateMembership).toHaveBeenCalledTimes(1);
-  });
-
   it("extends an existing future freeze instead of truncating it", async () => {
     // Already frozen through day 29 from today; only 1 week used so far this
     // year, well within the cap.
@@ -289,17 +278,6 @@ describe("cancelMembership", () => {
     await cancelMembership();
 
     expect(mockedCancelSub).toHaveBeenCalledWith({ membershipId: "m1" });
-  });
-
-  it("still resolves when notify rejects after the cancellation has committed", async () => {
-    mockedFindMembership.mockResolvedValue({ id: "m1", userId: "u1", renewsAt: null, freezes: [] });
-    mockedNotify.mockRejectedValue(new Error("email service down"));
-
-    const result = await cancelMembership();
-
-    expect(result.ok).toBe(true);
-    expect(mockedUpdateMembership).toHaveBeenCalledTimes(1);
-    expect(mockedCancelSub).toHaveBeenCalledTimes(1);
   });
 
   it("does not record a cancellation when the payment provider fails", async () => {

@@ -65,4 +65,21 @@ describe("notify", () => {
       `<p>&lt;img src=x onerror=&quot;alert(1)&quot;&gt; &amp; &quot;quoted&quot; &#39;text&#39;</p>`
     );
   });
+
+  it("never rejects when the in-app notification row cannot be written", async () => {
+    // The whole point of the funnel: callers treat notify as fire-and-forget,
+    // so a database failure here must not turn an already-committed booking or
+    // order advance into an error the user sees.
+    mockedCreate.mockRejectedValue(new Error("db down"));
+
+    await expect(notify("u1", "Title", "Body")).resolves.toBeUndefined();
+  });
+
+  it("does not attempt an email when the notification row failed", async () => {
+    mockedCreate.mockRejectedValue(new Error("db down"));
+
+    await notify("u1", "Title", "Body");
+
+    expect(mockedFindUser).not.toHaveBeenCalled();
+  });
 });

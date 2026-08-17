@@ -18,18 +18,20 @@ function escapeHtml(input: string): string {
 /**
  * The single funnel for member-facing notifications.
  *
- * The in-app row is the source of truth; email is best-effort. A Resend
- * outage must not lose a waitlist promotion, so a failed send is logged and
- * swallowed rather than thrown.
+ * Best-effort in full: this never rejects. Callers are actions that have
+ * already committed their real work (a booking, an order advance), and none
+ * of them should turn a delivery failure into a failure the user sees. The
+ * guard lives here rather than at each call site because there are now six of
+ * them and every future one inherits it for free.
  */
 export async function notify(userId: string, title: string, body: string): Promise<void> {
-  await db.notification.create({ data: { userId, title, body } });
-
   try {
+    await db.notification.create({ data: { userId, title, body } });
+
     const user = await db.user.findUnique({ where: { id: userId } });
     if (!user) return;
     await sendEmail({ to: user.email, subject: title, html: `<p>${escapeHtml(body)}</p>` });
   } catch (err) {
-    console.error("[notify] email delivery failed", err);
+    console.error("[notify] delivery failed", err);
   }
 }

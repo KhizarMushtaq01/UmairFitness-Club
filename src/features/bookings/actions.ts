@@ -33,29 +33,17 @@ export async function cancelBooking(rawInput: CancelBookingInput) {
     return { booking, promoted: next };
   });
 
-  // Outside the transaction on purpose, same reasoning as bookClass: notify
-  // sends email and its in-app db.notification.create write is unguarded. If
-  // that throws here, the cancellation (and any promotion) has already
-  // committed, so this action must not turn that success into a rejection
-  // the caller sees as failure. The two notifications are independent —
-  // each gets its own try/catch so a failure notifying the promoted member
-  // can't suppress the notification to the member who cancelled, or vice
-  // versa.
-  try {
-    await notify(cancelled.booking.userId, "Booking cancelled", "Your booking has been cancelled.");
-  } catch (err) {
-    console.error("[cancelBooking] notify failed after cancellation commit", err);
-  }
+  // Outside the transaction on purpose: notify sends email, and holding a
+  // database transaction open across a network call is how deadlocks start.
+  // notify never rejects (see its doc comment), so no guard is needed here —
+  // the cancellation and any promotion have already committed.
+  await notify(cancelled.booking.userId, "Booking cancelled", "Your booking has been cancelled.");
   if (cancelled.promoted) {
-    try {
-      await notify(
-        cancelled.promoted.userId,
-        "A seat opened up",
-        "You were on the waitlist and your place is now confirmed."
-      );
-    } catch (err) {
-      console.error("[cancelBooking] notify failed after promotion commit", err);
-    }
+    await notify(
+      cancelled.promoted.userId,
+      "A seat opened up",
+      "You were on the waitlist and your place is now confirmed."
+    );
   }
 
   revalidatePath("/dashboard/member/bookings");
@@ -101,22 +89,15 @@ export async function bookClass(rawInput: BookClassInput) {
 
   // Outside the transaction on purpose: notify sends email, and holding a
   // database transaction open across a network call is how deadlocks start.
-  //
-  // The booking has already committed by this point. notify's own doc
-  // comment calls it best-effort, but its in-app `db.notification.create`
-  // write is unguarded — if that throws, this action must not turn an
-  // already-successful booking into a rejection the caller sees as failure.
-  try {
-    await notify(
-      userId,
-      booked.status === "CONFIRMED" ? "Booked in" : "Added to the waitlist",
-      booked.status === "CONFIRMED"
-        ? `Your seat for ${booked.title} is confirmed.`
-        : `${booked.title} is full. We'll confirm you automatically if a seat frees up.`
-    );
-  } catch (err) {
-    console.error("[bookClass] notify failed after booking commit", err);
-  }
+  // notify never rejects, so the committed booking cannot be undone by a
+  // delivery failure.
+  await notify(
+    userId,
+    booked.status === "CONFIRMED" ? "Booked in" : "Added to the waitlist",
+    booked.status === "CONFIRMED"
+      ? `Your seat for ${booked.title} is confirmed.`
+      : `${booked.title} is full. We'll confirm you automatically if a seat frees up.`
+  );
 
   revalidatePath("/dashboard/member/classes");
   revalidatePath("/dashboard/member/bookings");
