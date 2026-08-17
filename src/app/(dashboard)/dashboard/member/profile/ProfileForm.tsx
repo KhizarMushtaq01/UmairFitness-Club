@@ -44,7 +44,7 @@ export function ProfileForm({ initialName }: { initialName: string }) {
             }
           })
         }
-        className="bg-[var(--red)] text-white p-3 font-bold uppercase tracking-widest text-xs"
+        className="bg-[var(--red)] text-white p-3 min-h-[44px] inline-flex items-center justify-center font-bold uppercase tracking-widest text-xs"
       >
         {isPending ? "Saving…" : saved ? "Saved" : "Save"}
       </button>

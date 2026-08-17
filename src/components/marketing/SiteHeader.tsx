@@ -19,16 +19,25 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] backdrop-blur-md border-b border-[var(--line)]">
       <div className="max-w-[1200px] mx-auto flex items-center gap-4 px-4 md:px-7 h-16">
-        <Link href="/" className="no-underline text-[var(--txt)] shrink-0">
+        <Link
+          href="/"
+          className="no-underline text-[var(--txt)] shrink-0 min-h-[44px] inline-flex items-center"
+        >
           <Logo />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6 ml-auto">
+        {/*
+          lg rather than md: at exactly 768px the five links plus the Sign in
+          button overflowed the header by 29px, and a tablet got 18.8px-tall
+          tap targets. Below lg the drawer below handles navigation, and its
+          links are already 44px.
+        */}
+        <nav className="hidden lg:flex items-center gap-6 ml-auto">
           {NAV.map(([href, label]) => (
             <Link
               key={href}
               href={href}
-              className="text-[12.5px] font-semibold tracking-[.08em] uppercase no-underline"
+              className="min-h-[44px] flex items-center text-[12.5px] font-semibold tracking-[.08em] uppercase no-underline"
               style={{ color: pathname === href ? "var(--txt)" : "var(--mut)" }}
             >
               {label}
@@ -36,7 +45,7 @@ export function SiteHeader() {
           ))}
           <Link
             href="/login"
-            className="bg-[var(--red)] text-white px-5 py-3 font-bold uppercase tracking-widest text-xs no-underline"
+            className="bg-[var(--red)] text-white px-5 py-3 min-h-[44px] inline-flex items-center justify-center font-bold uppercase tracking-widest text-xs no-underline"
           >
             Sign in
           </Link>
@@ -47,7 +56,7 @@ export function SiteHeader() {
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
           aria-expanded={open}
-          className="md:hidden ml-auto w-11 h-11 grid place-items-center border border-[var(--line2)] shrink-0"
+          className="lg:hidden ml-auto w-11 h-11 grid place-items-center border border-[var(--line2)] shrink-0"
         >
           <span aria-hidden="true" className="text-lg leading-none">
             ☰
@@ -56,7 +65,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="md:hidden border-t border-[var(--line)] flex flex-col px-4 pb-4">
+        <nav className="lg:hidden border-t border-[var(--line)] flex flex-col px-4 pb-4">
           {NAV.map(([href, label]) => (
             <Link
               key={href}

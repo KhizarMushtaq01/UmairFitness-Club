@@ -20,7 +20,7 @@ export function AddProductForm() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="bg-[var(--red)] text-white px-5 py-3 font-bold uppercase tracking-widest text-xs w-fit"
+        className="bg-[var(--red)] text-white px-5 py-3 min-h-[44px] inline-flex items-center justify-center font-bold uppercase tracking-widest text-xs w-fit"
       >
         Add product
       </button>
@@ -76,7 +76,7 @@ export function AddProductForm() {
       )}
       <button
         disabled={isPending}
-        className="bg-[var(--red)] text-white p-3 font-bold uppercase tracking-widest text-xs"
+        className="bg-[var(--red)] text-white p-3 min-h-[44px] inline-flex items-center justify-center font-bold uppercase tracking-widest text-xs"
       >
         {isPending ? "Adding…" : "Add"}
       </button>

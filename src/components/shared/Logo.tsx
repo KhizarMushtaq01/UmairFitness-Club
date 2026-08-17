@@ -17,7 +17,12 @@ export function Logo() {
       >
         UFC
       </div>
-      <div className="font-[var(--font-heading)] text-[16px] tracking-[.08em] whitespace-nowrap">
+      {/*
+        14px below sm: at 320px the 16px wordmark plus the 44px menu button
+        overflowed the header by 4px, which scrolled the whole page sideways.
+        Shrinking the type keeps the full club name rather than truncating it.
+      */}
+      <div className="font-[var(--font-heading)] text-[14px] sm:text-[16px] tracking-[.08em] whitespace-nowrap">
         UMAIR FITNESS CLUB
       </div>
     </div>
