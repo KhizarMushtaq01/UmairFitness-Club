@@ -2,6 +2,8 @@ import Image from "next/image";
 import { getGalleryImages } from "@/features/content/queries";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
+import { GalleryUploadForm } from "./GalleryUploadForm";
+import { DeleteImageButton } from "./DeleteImageButton";
 
 export default async function AdminGalleryPage() {
   const images = await getGalleryImages();
@@ -9,7 +11,8 @@ export default async function AdminGalleryPage() {
   return (
     <>
       <Topbar title="Gallery" />
-      <div className="p-4 md:p-7 max-w-[1200px]">
+      <div className="p-4 md:p-7 flex flex-col gap-6 max-w-[1200px]">
+        <GalleryUploadForm />
         {images.length === 0 ? (
           <EmptyState body="No gallery images yet." />
         ) : (
@@ -26,6 +29,7 @@ export default async function AdminGalleryPage() {
                   className="w-full h-[150px] object-cover block"
                 />
                 <div className="p-2 text-[var(--dim)] text-xs">{img.caption}</div>
+                <DeleteImageButton imageId={img.id} />
               </div>
             ))}
           </div>
