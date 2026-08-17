@@ -6,6 +6,7 @@ vi.mock("@/lib/db", () => ({
     user: { findMany: vi.fn(), count: vi.fn() },
     post: { findMany: vi.fn() },
     galleryImage: { findMany: vi.fn() },
+    plan: { findMany: vi.fn() },
   },
 }));
 
@@ -69,10 +70,17 @@ describe("getPublicClasses", () => {
 });
 
 describe("getPublicPlans", () => {
-  it("returns all three tiers with their prices, regardless of who is enrolled", async () => {
-    // The seed data has exactly one membership (FIGHTER). If getPublicPlans
-    // were still derived from enrollment, only one tier would come back —
-    // this asserts the full catalogue is independent of that.
+  it("returns every tier from the Plan table, regardless of who is enrolled", async () => {
+    // The guarantee that matters, carried over from the const era: a public
+    // price list shows every tier. It now holds because the catalogue is read
+    // from Plan rather than grouped from Membership — the seed has exactly
+    // one membership (FIGHTER), so an enrolment-derived list would show one.
+    (db.plan.findMany as unknown as Mock).mockResolvedValue([
+      { key: "CONTENDER", priceCents: 8900, sortOrder: 1 },
+      { key: "FIGHTER", priceCents: 14900, sortOrder: 2 },
+      { key: "CHAMPION", priceCents: 24900, sortOrder: 3 },
+    ]);
+
     const plans = await getPublicPlans();
 
     expect(plans).toEqual([
@@ -82,11 +90,21 @@ describe("getPublicPlans", () => {
     ]);
   });
 
-  it("does not touch the database", async () => {
+  it("asks for the tiers in their configured display order", async () => {
+    (db.plan.findMany as unknown as Mock).mockResolvedValue([]);
+
     await getPublicPlans();
 
-    expect(mockedClasses).not.toHaveBeenCalled();
-    expect(mockedUsers).not.toHaveBeenCalled();
+    const arg = (db.plan.findMany as unknown as Mock).mock.calls[0][0];
+    expect(arg.orderBy).toEqual({ sortOrder: "asc" });
+  });
+
+  it("reflects a price an admin has edited", async () => {
+    (db.plan.findMany as unknown as Mock).mockResolvedValue([
+      { key: "CONTENDER", priceCents: 9900, sortOrder: 1 },
+    ]);
+
+    await expect(getPublicPlans()).resolves.toEqual([{ plan: "CONTENDER", price: "$99 / mo" }]);
   });
 });
 

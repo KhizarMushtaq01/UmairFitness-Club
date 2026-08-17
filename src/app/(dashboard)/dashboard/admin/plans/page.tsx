@@ -3,7 +3,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
 import { DataTable } from "@/components/shared/DataTable";
 
-type PlanRow = { id: string; plan: string; price: string; memberCount: number };
+type PlanRow = Awaited<ReturnType<typeof getPlanBreakdown>>[number];
 
 export default async function AdminPlansPage() {
   const plans = await getPlanBreakdown();
@@ -13,15 +13,16 @@ export default async function AdminPlansPage() {
       <Topbar title="Membership plans" />
       <div className="p-4 md:p-7 flex flex-col gap-6 max-w-[1200px]">
         {plans.length === 0 ? (
-          <EmptyState body="No active plans yet." />
+          <EmptyState body="No plans have been configured yet." />
         ) : (
           <DataTable<PlanRow>
             columns={[
-              { header: "Plan", render: (r) => r.plan },
+              { header: "Plan", render: (r) => r.name },
+              { header: "Key", render: (r) => r.key },
               { header: "Price", render: (r) => r.price },
               { header: "Members", render: (r) => String(r.memberCount) },
             ]}
-            rows={plans.map((p) => ({ id: p.plan, ...p }))}
+            rows={plans}
           />
         )}
       </div>

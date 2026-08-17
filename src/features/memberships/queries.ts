@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { computeFreezeAllowance } from "@/features/profile/freeze-allowance";
+import { formatPlanPrice } from "@/features/plans/format";
 import { DAY_MS, CANCELLATION_NOTICE_DAYS } from "@/features/profile/constants";
 
 export async function getAllMembers(q?: string) {
@@ -44,18 +45,27 @@ export async function getAllTrainers() {
   }));
 }
 
-const PLAN_PRICES: Record<string, string> = {
-  CONTENDER: "$89 / mo",
-  FIGHTER: "$149 / mo",
-  CHAMPION: "$249 / mo",
-};
-
+/**
+ * Every plan with how many members hold it.
+ *
+ * Driven by the Plan table rather than by grouping memberships, so a tier
+ * nobody has bought still appears — otherwise it could never be priced.
+ */
 export async function getPlanBreakdown() {
-  const byPlan = await db.membership.groupBy({ by: ["plan"], _count: { plan: true } });
-  return byPlan.map((p) => ({
-    plan: p.plan,
-    price: PLAN_PRICES[p.plan] ?? "—",
-    memberCount: p._count.plan,
+  const [plans, byPlan] = await Promise.all([
+    db.plan.findMany({ orderBy: { sortOrder: "asc" } }),
+    db.membership.groupBy({ by: ["plan"], _count: { plan: true } }),
+  ]);
+
+  const counts = new Map(byPlan.map((b) => [b.plan, b._count.plan]));
+
+  return plans.map((p) => ({
+    id: p.id,
+    key: p.key,
+    name: p.name,
+    priceCents: p.priceCents,
+    price: formatPlanPrice(p.priceCents),
+    memberCount: counts.get(p.key) ?? 0,
   }));
 }
 

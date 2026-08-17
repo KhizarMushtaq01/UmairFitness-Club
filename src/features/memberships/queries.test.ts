@@ -2,14 +2,14 @@ import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 
 vi.mock("@/lib/db", () => ({
   db: {
-    membership: { findFirst: vi.fn() },
+    membership: { findFirst: vi.fn(), groupBy: vi.fn(), update: vi.fn() },
     user: { findUnique: vi.fn(), findMany: vi.fn() },
     plan: { findMany: vi.fn() },
   },
 }));
 
 import { db } from "@/lib/db";
-import { getMembershipStatus, getMemberDetail, getAllMembers } from "./queries";
+import { getMembershipStatus, getMemberDetail, getAllMembers, getPlanBreakdown } from "./queries";
 
 const mockedFindMembership = db.membership.findFirst as unknown as Mock;
 
@@ -222,5 +222,41 @@ describe("getAllMembers", () => {
 
     const arg = (db.user.findMany as unknown as Mock).mock.calls[0][0];
     expect(arg.where).toEqual({ role: "MEMBER" });
+  });
+});
+
+describe("getPlanBreakdown", () => {
+  it("lists every plan, including tiers nobody has bought", async () => {
+    // groupBy over memberships could only ever return plans someone holds, so
+    // an empty tier was invisible on the admin plans screen — and invisible
+    // is uneditable once Task 17 puts the editor in that table.
+    (db.plan.findMany as unknown as Mock).mockResolvedValue([
+      { id: "pl1", key: "CONTENDER", name: "Contender", priceCents: 8900, sortOrder: 1 },
+      { id: "pl2", key: "FIGHTER", name: "Fighter", priceCents: 14900, sortOrder: 2 },
+    ]);
+    (db.membership.groupBy as unknown as Mock).mockResolvedValue([
+      { plan: "FIGHTER", _count: { plan: 3 } },
+    ]);
+
+    const rows = await getPlanBreakdown();
+
+    expect(rows).toEqual([
+      {
+        id: "pl1",
+        key: "CONTENDER",
+        name: "Contender",
+        priceCents: 8900,
+        price: "$89 / mo",
+        memberCount: 0,
+      },
+      {
+        id: "pl2",
+        key: "FIGHTER",
+        name: "Fighter",
+        priceCents: 14900,
+        price: "$149 / mo",
+        memberCount: 3,
+      },
+    ]);
   });
 });

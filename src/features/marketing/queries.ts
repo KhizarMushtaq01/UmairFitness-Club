@@ -1,12 +1,8 @@
 import { db } from "@/lib/db";
+import { formatPlanPrice } from "@/features/plans/format";
 
 // Public pages must not leak staff email addresses, so these queries select
 // their fields explicitly rather than reusing the admin queries.
-const PLAN_PRICES: Record<string, string> = {
-  CONTENDER: "$89 / mo",
-  FIGHTER: "$149 / mo",
-  CHAMPION: "$249 / mo",
-};
 
 export async function getPublicClasses() {
   const classes = await db.class.findMany({
@@ -44,12 +40,12 @@ export async function getPublicTrainers() {
 // does not belong on a public marketing page. See admin-only
 // getPlanBreakdown() in src/features/memberships/queries.ts for that.
 //
-// The catalogue is sourced from PLAN_PRICES itself, not from who currently
-// holds a membership — a public price list must always show every tier,
-// regardless of enrollment. This is why getPublicPlans is synchronous with
-// no DB read: there is nothing to await.
+// The catalogue comes from the Plan table, not from who currently holds a
+// membership: a public price list must always show every tier, regardless of
+// enrolment. That was true when this read a const and is still true now.
 export async function getPublicPlans() {
-  return Object.entries(PLAN_PRICES).map(([plan, price]) => ({ plan, price }));
+  const plans = await db.plan.findMany({ orderBy: { sortOrder: "asc" } });
+  return plans.map((p) => ({ plan: p.key, price: formatPlanPrice(p.priceCents) }));
 }
 
 export async function getSiteStats() {
