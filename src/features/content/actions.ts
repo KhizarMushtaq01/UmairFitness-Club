@@ -10,7 +10,12 @@ import {
   type UnpublishPostInput,
   deletePostSchema,
   type DeletePostInput,
+  galleryCaptionSchema,
+  deleteGalleryImageSchema,
+  type DeleteGalleryImageInput,
+  MAX_UPLOAD_BYTES,
 } from "./schemas";
+import { uploadImage } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
 
 export async function publishPost(rawInput: PublishPostInput) {
@@ -66,6 +71,50 @@ export async function deletePost(rawInput: DeletePostInput) {
   await db.post.delete({ where: { id: input.postId } });
 
   revalidatePath("/dashboard/admin/content");
+  revalidatePath("/");
+  return { ok: true as const };
+}
+
+/**
+ * Takes FormData rather than a typed object: a file cannot cross the server
+ * action boundary any other way. The caption goes through Zod; the file is
+ * checked by hand, since Zod has no useful File schema here.
+ */
+export async function uploadGalleryImage(formData: FormData) {
+  const session = await getSession();
+  assertRole(session, ["ADMIN"]);
+
+  const { caption } = galleryCaptionSchema.parse({ caption: formData.get("caption") });
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) throw new Error("Validation: no file uploaded");
+  // The gallery renders every row through next/image, so a non-image would
+  // upload cleanly and then break the page it appears on.
+  if (!file.type.startsWith("image/")) throw new Error("Validation: only image files are allowed");
+  if (file.size > MAX_UPLOAD_BYTES) throw new Error("Validation: image is larger than 5 MB");
+
+  // Checks first, upload second: rejecting after writing the file would leave
+  // an orphan on disk (or a paid-for Cloudinary asset) with no row pointing
+  // at it.
+  const { url } = await uploadImage(Buffer.from(await file.arrayBuffer()), file.name);
+  await db.galleryImage.create({ data: { url, caption } });
+
+  revalidatePath("/dashboard/admin/gallery");
+  revalidatePath("/");
+  return { ok: true as const };
+}
+
+export async function deleteGalleryImage(rawInput: DeleteGalleryImageInput) {
+  const input = deleteGalleryImageSchema.parse(rawInput);
+  const session = await getSession();
+  assertRole(session, ["ADMIN"]);
+
+  // The row goes; the uploaded file itself is left in place. Deleting the
+  // stored asset means a second adapter method and a Cloudinary destroy call,
+  // which the spec did not scope.
+  await db.galleryImage.delete({ where: { id: input.imageId } });
+
+  revalidatePath("/dashboard/admin/gallery");
   revalidatePath("/");
   return { ok: true as const };
 }
