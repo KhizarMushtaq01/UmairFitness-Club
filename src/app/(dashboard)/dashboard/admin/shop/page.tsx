@@ -4,6 +4,7 @@ import { Topbar } from "@/components/shared/Topbar";
 import { DataTable } from "@/components/shared/DataTable";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { AddProductForm } from "./AddProductForm";
+import { ProductRowActions } from "./ProductRowActions";
 
 type ProductRow = Awaited<ReturnType<typeof getAllProducts>>[number];
 
@@ -26,6 +27,18 @@ export default async function AdminShopPage() {
               {
                 header: "Stock",
                 render: (r) => <StatusBadge label={`${r.stock} in stock`} color={r.stockColor} />,
+              },
+              {
+                header: "",
+                render: (r) => (
+                  <ProductRowActions
+                    productId={r.id}
+                    name={r.name}
+                    priceCents={r.priceCents}
+                    stockCount={r.stockCount}
+                    category={r.category}
+                  />
+                ),
               },
             ]}
             rows={products}

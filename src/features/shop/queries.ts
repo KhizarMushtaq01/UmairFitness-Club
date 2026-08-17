@@ -9,6 +9,10 @@ export async function getAllProducts() {
     stock: p.stock,
     category: p.category,
     stockColor: p.stock < 10 ? "var(--red)" : "var(--mut)",
+    // Raw values alongside the formatted ones: the table shows `price`, the
+    // edit form needs the integer it was derived from.
+    priceCents: p.price,
+    stockCount: p.stock,
   }));
 }
 
