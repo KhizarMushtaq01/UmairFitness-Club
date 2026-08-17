@@ -28,5 +28,8 @@ export async function getAllOrders() {
         : o.status === "SHIPPED"
           ? "var(--mut)"
           : "var(--red)",
+    // The UI's "can this advance?" must agree with the action's own rule, so
+    // both read the same terminal state rather than each listing statuses.
+    canAdvance: o.status !== "DELIVERED",
   }));
 }

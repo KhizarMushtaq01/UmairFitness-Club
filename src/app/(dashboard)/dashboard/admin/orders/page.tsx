@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
 import { DataTable } from "@/components/shared/DataTable";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { AdvanceOrderButton } from "./AdvanceOrderButton";
 
 type OrderRow = Awaited<ReturnType<typeof getAllOrders>>[number];
 
@@ -23,6 +24,15 @@ export default async function AdminOrdersPage() {
               {
                 header: "Status",
                 render: (r) => <StatusBadge label={r.status} color={r.statusColor} />,
+              },
+              {
+                header: "",
+                render: (r) =>
+                  r.canAdvance ? (
+                    <AdvanceOrderButton orderId={r.id} />
+                  ) : (
+                    <span className="text-[var(--dim)] text-xs">Complete</span>
+                  ),
               },
             ]}
             rows={orders}
