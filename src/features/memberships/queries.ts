@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { computeFreezeAllowance } from "@/features/profile/freeze-allowance";
 import { formatPlanPrice } from "@/features/plans/format";
+import { deriveDisplayStatus, displayStatusColor } from "./display-status";
 import { DAY_MS, CANCELLATION_NOTICE_DAYS } from "@/features/profile/constants";
 
 export async function getAllMembers(q?: string) {
@@ -20,13 +21,16 @@ export async function getAllMembers(q?: string) {
   });
   return members.map((m) => {
     const ms = m.memberships[0];
+    // FROZEN is derived here too, not just on the member's own profile — an
+    // admin scanning this table needs to see a paused membership as paused.
+    const status = ms ? deriveDisplayStatus(ms.status, ms.frozenUntil) : "NONE";
     return {
       id: m.id,
       name: m.name,
       email: m.email,
       plan: ms?.plan ?? "—",
-      status: ms?.status ?? "NONE",
-      statusColor: ms?.status === "AT_RISK" ? "var(--red)" : "var(--mut)",
+      status,
+      statusColor: displayStatusColor(status),
     };
   });
 }
@@ -94,10 +98,9 @@ export async function getMembershipStatus(userId: string) {
   return {
     plan: membership.plan,
     status: membership.status,
-    // Derived, not stored — adding FROZEN to the stored values would mean
-    // updating every status colour map and the seed to say what frozenUntil
-    // already says.
-    displayStatus: frozen ? "FROZEN" : membership.status,
+    // Derived, not stored. Shared with both admin surfaces via
+    // deriveDisplayStatus so the three cannot drift apart.
+    displayStatus: deriveDisplayStatus(membership.status, membership.frozenUntil, now),
     frozenUntil: frozen ? membership.frozenUntil : null,
     cancelEffectiveAt,
     usedWeeks,
@@ -132,14 +135,29 @@ export async function getMemberDetail(id: string) {
   if (!user || user.role !== "MEMBER") return null;
 
   const ms = user.memberships[0];
+  const displayStatus = ms ? deriveDisplayStatus(ms.status, ms.frozenUntil) : "NONE";
 
   return {
     id: user.id,
     name: user.name,
     email: user.email,
     plan: ms?.plan ?? "—",
-    status: ms?.status ?? "NONE",
-    statusColor: ms?.status === "AT_RISK" ? "var(--red)" : "var(--mut)",
+    status: displayStatus,
+    // The stored value, kept alongside the derived one because the edit form
+    // must show and submit what the database actually holds — FROZEN is not a
+    // value updateMembership can write, since freezing is `frozenUntil`.
+    storedStatus: ms?.status ?? "NONE",
+    // Only set while the freeze is live, so the page can explain why the
+    // status card reads FROZEN while the edit form shows the stored value.
+    frozenUntil:
+      displayStatus === "FROZEN" && ms?.frozenUntil
+        ? ms.frozenUntil.toLocaleDateString([], {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+        : null,
+    statusColor: displayStatusColor(displayStatus),
     memberSince: user.createdAt.toLocaleDateString([], {
       day: "numeric",
       month: "short",

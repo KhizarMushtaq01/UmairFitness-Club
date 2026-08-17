@@ -260,3 +260,65 @@ describe("getPlanBreakdown", () => {
     ]);
   });
 });
+
+describe("admin views derive FROZEN, not just the member's own profile", () => {
+  // Phase 4 derived FROZEN only in getMembershipStatus, so a frozen member
+  // read as ACTIVE on both admin screens — the admin being the one person who
+  // needs to know a membership is paused. These pin the derivation on both.
+  const frozenUntil = new Date(Date.now() + 5 * DAY_MS);
+
+  it("getAllMembers reports a frozen member as FROZEN, not their stored status", async () => {
+    (db.user.findMany as unknown as Mock).mockResolvedValue([
+      {
+        id: "u1",
+        name: "Marcus Reid",
+        email: "marcus@umairfitness.gym",
+        memberships: [{ plan: "FIGHTER", status: "ACTIVE", frozenUntil }],
+      },
+    ]);
+
+    const [row] = await getAllMembers();
+
+    expect(row.status).toBe("FROZEN");
+    expect(row.statusColor).toBe("var(--dim)");
+  });
+
+  it("getAllMembers leaves an unfrozen member's stored status alone", async () => {
+    (db.user.findMany as unknown as Mock).mockResolvedValue([
+      {
+        id: "u1",
+        name: "Marcus Reid",
+        email: "marcus@umairfitness.gym",
+        memberships: [{ plan: "FIGHTER", status: "AT_RISK", frozenUntil: null }],
+      },
+    ]);
+
+    const [row] = await getAllMembers();
+
+    expect(row.status).toBe("AT_RISK");
+    expect(row.statusColor).toBe("var(--red)");
+  });
+
+  it("getMemberDetail reports a frozen member as FROZEN", async () => {
+    (db.plan.findMany as unknown as Mock).mockResolvedValue([]);
+    (db.user.findUnique as unknown as Mock).mockResolvedValue({
+      id: "u1",
+      name: "Marcus Reid",
+      email: "marcus@umairfitness.gym",
+      role: "MEMBER",
+      createdAt: new Date("2026-01-15T10:00:00"),
+      memberships: [{ plan: "FIGHTER", status: "ACTIVE", frozenUntil }],
+      bookings: [],
+      invoices: [],
+      attendance: [],
+      _count: { bookings: 0, attendance: 0 },
+    });
+
+    const detail = await getMemberDetail("u1");
+
+    expect(detail?.status).toBe("FROZEN");
+    // The stored value must survive, so the edit form still shows what the
+    // database actually holds rather than an underived "FROZEN" it cannot save.
+    expect(detail?.storedStatus).toBe("ACTIVE");
+  });
+});

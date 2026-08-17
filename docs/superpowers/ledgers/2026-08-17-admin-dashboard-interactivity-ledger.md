@@ -287,3 +287,77 @@ it may be the user's own dev server.
   forward and this plan did not pick it up.
 - `DataTable` keys columns by `c.header`, so a second empty-header column in any one table would
   collide. Three tables now use exactly one each.
+
+---
+
+## Post-merge follow-up wave (on master, after the phase 5 merge)
+
+Clearing the outstanding items this phase recorded rather than leaving them for a fourth phase.
+
+### CORRECTION to the live viewport pass above
+
+`a[All coaches →] h=41.5` was reported above as a pre-existing sub-44px target. **That was wrong.**
+The element already carries `min-h-[44px] inline-flex items-center`. It measured 41.5px because
+`Reveal` runs `gsap.set(el, { opacity: 0, y, z: -60 })` under `transformStyle: preserve-3d`, and
+`getBoundingClientRect()` returns the perspective-transformed box while the reveal is mid-flight.
+Nothing was wrong with the link. Two lessons, both now applied in the re-verification harness:
+measure with `offsetHeight` (layout height, immune to transforms) rather than the client rect, and
+settle scroll-triggered animations before measuring. The same artifact explains the hero's
+`inset-[-10%]` "overflow" — it is a deliberate bleed inside an `overflow-hidden` parent, and the
+re-verification skips any element with a clipping or scrolling ancestor.
+
+### Fixed
+
+1. **Sub-44px controls in two dashboard forms.** `AddProductForm`'s "Add product" and "Add" buttons
+   and `ProfileForm`'s "Save" button all measured 40px — `text-xs` inside `p-3` with no `min-h`.
+   Given `min-h-[44px] inline-flex items-center justify-center`, matching every phase 5 control.
+   `ProfileForm` is the item Phase 4 recorded and deferred; it is now closed.
+
+2. **`SiteHeader` overflowed at 768px and had 18.8px tap targets there.** Root cause was one thing,
+   not two: the desktop nav switched on at `md:` (768px), where five links plus the Sign in button
+   do not fit in `768 - 56px` of padding, and where a tablet is still a touch device. Moved the nav
+   and the hamburger to `lg:`, so 768px keeps the drawer — whose links were already 44px — and the
+   desktop nav appears at 1024px where it fits. Desktop nav links, "Sign in" and the logo link also
+   got explicit 44px heights.
+
+3. **4px of horizontal page scroll at 320px on every public page.** The 16px logo wordmark plus the
+   44px menu button exceeded the header's content width, pushing the button 4px past the viewport.
+   The wordmark is now `text-[14px] sm:text-[16px]`, which keeps the full club name rather than
+   truncating it. `Logo` is shared with the dashboard sidebar, so that drawer benefits too.
+
+4. **Admin-side derived-FROZEN blindness — the functional gap Phase 4 handed forward and phase 5's
+   plan did not pick up.** `getMembershipStatus` derived FROZEN for the member's own profile, but
+   `getAllMembers` and `getMemberDetail` returned the stored status, so a frozen member read as
+   ACTIVE to the admin — the one person who needs to know a membership is paused. Extracted
+   `deriveDisplayStatus` / `displayStatusColor` into `features/memberships/display-status.ts` (10
+   tests), and all three surfaces now share it, so they cannot drift apart again. FROZEN renders in
+   `var(--dim)`: paused, not alarming.
+
+   A trap this fix walks into and back out of, worth recording: `getMemberDetail.status` feeds
+   `MembershipForm`'s status select, whose four options are exactly what `updateMembership` can
+   write. Deriving FROZEN into that field would have left the select on a blank option and
+   submitted a value the Zod enum rejects. So the query now returns BOTH `status` (derived, for the
+   badge) and `storedStatus` (what the form edits), plus a formatted `frozenUntil` so the page can
+   explain why the card says FROZEN while the select says ACTIVE. Verified live: with a membership
+   frozen 10 days out, the members table and the detail card both read FROZEN, the explanation
+   line renders, and the select still holds ACTIVE. The test data was restored afterwards.
+
+### Verified
+
+Suite 23 files / 200 tests / 0 failures. `tsc` clean, `eslint` clean, `npm run build` succeeds.
+Re-ran the browser measurement with the corrected harness across 6 public pages at
+320/375/768/1024/1280, both drawer states, 6 admin surfaces at 320/768/1280, the expanded
+add-product form, and the member profile: **0 failing checks** — no page-level horizontal scroll,
+nothing painting outside the viewport, no interactive target under 44px anywhere.
+
+### Still open, deliberately
+
+- The cancellation scheduler (Ruling 8). Genuinely unbuilt infrastructure — a cron or a lazy status
+  check — that the spec never scoped and that needs a product decision about when a cancellation
+  actually takes effect. Not something to invent in a cleanup wave.
+- `notFound()` returning HTTP 200 with a correct 404 body inside the dashboard layout. App-wide and
+  pre-existing (the untouched `trainer/clients/[id]` behaves identically); the cause is the layout
+  shell streaming before the page resolves. Cosmetic for authenticated routes.
+- `advanceOrderStatus` / `bookClass` atomicity still has no automated evidence, for the same reason
+  as before: the `$transaction` mock runs its callback inline. Needs an integration test against a
+  live SQLite file.

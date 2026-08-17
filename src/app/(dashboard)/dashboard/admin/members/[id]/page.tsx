@@ -38,12 +38,25 @@ export default async function AdminMemberDetailPage({
           </div>
           <div className="text-sm mt-2">{detail.email}</div>
           <div className="text-[var(--dim)] text-xs mt-1">Member since {detail.memberSince}</div>
+          {detail.frozenUntil && (
+            <div className="text-[var(--dim)] text-xs mt-1">
+              Membership frozen until {detail.frozenUntil} — the stored status below is what
+              resumes afterwards.
+            </div>
+          )}
         </div>
 
+        {/*
+          storedStatus, not the derived one: the select offers the four values
+          updateMembership can actually write, and FROZEN is not among them —
+          freezing is `frozenUntil`, not a status. Passing the derived value
+          here would leave the select on a blank option and submit a value the
+          action's schema rejects. The stat card above still shows FROZEN.
+        */}
         <MembershipForm
           userId={detail.id}
           plan={detail.plan}
-          status={detail.status}
+          status={detail.storedStatus}
           planOptions={detail.planOptions}
         />
 
