@@ -6,6 +6,10 @@ import {
   type AddProductInput,
   advanceOrderStatusSchema,
   type AdvanceOrderStatusInput,
+  updateProductSchema,
+  type UpdateProductInput,
+  deleteProductSchema,
+  type DeleteProductInput,
 } from "./schemas";
 import { notify } from "@/features/notifications/notify";
 import { revalidatePath } from "next/cache";
@@ -59,4 +63,33 @@ export async function advanceOrderStatus(rawInput: AdvanceOrderStatusInput) {
 
   revalidatePath("/dashboard/admin/orders");
   return { ok: true as const, status: advanced.next as "SHIPPED" | "DELIVERED" };
+}
+
+export async function updateProduct(rawInput: UpdateProductInput) {
+  const input = updateProductSchema.parse(rawInput);
+  const session = await getSession();
+  assertRole(session, ["ADMIN"]);
+
+  const { productId, ...fields } = input;
+  await db.product.update({ where: { id: productId }, data: fields });
+
+  revalidatePath("/dashboard/admin/shop");
+  return { ok: true as const };
+}
+
+export async function deleteProduct(rawInput: DeleteProductInput) {
+  const input = deleteProductSchema.parse(rawInput);
+  const session = await getSession();
+  assertRole(session, ["ADMIN"]);
+
+  // OrderItem.product has no onDelete cascade, so a product with order
+  // history cannot be removed. Checking first turns an opaque foreign-key
+  // error into a reason the admin can act on.
+  const used = await db.orderItem.findFirst({ where: { productId: input.productId } });
+  if (used) throw new Error("Conflict: this product appears in an order and cannot be deleted");
+
+  await db.product.delete({ where: { id: input.productId } });
+
+  revalidatePath("/dashboard/admin/shop");
+  return { ok: true as const };
 }
