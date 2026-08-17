@@ -2,9 +2,19 @@ import { db } from "@/lib/db";
 import { computeFreezeAllowance } from "@/features/profile/freeze-allowance";
 import { DAY_MS, CANCELLATION_NOTICE_DAYS } from "@/features/profile/constants";
 
-export async function getAllMembers() {
+export async function getAllMembers(q?: string) {
+  // SQLite's LIKE is case-insensitive for ASCII already, so Prisma's
+  // `mode: "insensitive"` is both unnecessary and unsupported by this
+  // provider. A whitespace-only query is treated as no query so an empty
+  // submit does not return zero rows.
+  const term = q?.trim();
   const members = await db.user.findMany({
-    where: { role: "MEMBER" },
+    where: term
+      ? {
+          role: "MEMBER",
+          OR: [{ name: { contains: term } }, { email: { contains: term } }],
+        }
+      : { role: "MEMBER" },
     include: { memberships: { orderBy: { createdAt: "desc" }, take: 1 } },
   });
   return members.map((m) => {

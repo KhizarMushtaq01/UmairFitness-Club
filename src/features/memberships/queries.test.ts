@@ -8,7 +8,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 import { db } from "@/lib/db";
-import { getMembershipStatus, getMemberDetail } from "./queries";
+import { getMembershipStatus, getMemberDetail, getAllMembers } from "./queries";
 
 const mockedFindMembership = db.membership.findFirst as unknown as Mock;
 
@@ -157,5 +157,45 @@ describe("getMemberDetail", () => {
     expect(arg.include.bookings.take).toBe(20);
     expect(arg.include.invoices.take).toBe(20);
     expect(arg.include.attendance.take).toBe(20);
+  });
+});
+
+describe("getAllMembers", () => {
+  beforeEach(() => {
+    (db.user.findMany as unknown as Mock).mockResolvedValue([]);
+  });
+
+  it("filters by role only when no query is given", async () => {
+    await getAllMembers();
+
+    const arg = (db.user.findMany as unknown as Mock).mock.calls[0][0];
+    expect(arg.where).toEqual({ role: "MEMBER" });
+  });
+
+  it("matches the query against both name and email", async () => {
+    await getAllMembers("marcus");
+
+    const arg = (db.user.findMany as unknown as Mock).mock.calls[0][0];
+    expect(arg.where).toEqual({
+      role: "MEMBER",
+      OR: [{ name: { contains: "marcus" } }, { email: { contains: "marcus" } }],
+    });
+  });
+
+  it("keeps the role filter when searching, so a trainer never matches", async () => {
+    // Dropping `role` from the search branch would let an admin surface staff
+    // rows on the members screen. Asserting the whole where-object is what
+    // pins that, not just the OR.
+    await getAllMembers("ana");
+
+    const arg = (db.user.findMany as unknown as Mock).mock.calls[0][0];
+    expect(arg.where.role).toBe("MEMBER");
+  });
+
+  it("treats a blank or whitespace-only query as no query", async () => {
+    await getAllMembers("   ");
+
+    const arg = (db.user.findMany as unknown as Mock).mock.calls[0][0];
+    expect(arg.where).toEqual({ role: "MEMBER" });
   });
 });
