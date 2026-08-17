@@ -5,6 +5,7 @@ import { StatCard } from "@/components/shared/StatCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { DataTable } from "@/components/shared/DataTable";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { MembershipForm } from "./MembershipForm";
 
 type Detail = NonNullable<Awaited<ReturnType<typeof getMemberDetail>>>;
 type BookingRow = Detail["bookings"][number];
@@ -38,6 +39,13 @@ export default async function AdminMemberDetailPage({
           <div className="text-sm mt-2">{detail.email}</div>
           <div className="text-[var(--dim)] text-xs mt-1">Member since {detail.memberSince}</div>
         </div>
+
+        <MembershipForm
+          userId={detail.id}
+          plan={detail.plan}
+          status={detail.status}
+          planOptions={detail.planOptions}
+        />
 
         <section className="flex flex-col gap-3">
           <h2 style={{ fontFamily: "var(--font-heading)" }} className="text-[26px] leading-[1.05]">

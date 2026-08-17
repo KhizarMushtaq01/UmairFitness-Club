@@ -4,6 +4,7 @@ vi.mock("@/lib/db", () => ({
   db: {
     membership: { findFirst: vi.fn() },
     user: { findUnique: vi.fn(), findMany: vi.fn() },
+    plan: { findMany: vi.fn() },
   },
 }));
 
@@ -91,6 +92,13 @@ describe("getMemberDetail", () => {
     _count: { bookings: 12, attendance: 30 },
   };
 
+  beforeEach(() => {
+    // Load-bearing: getMemberDetail maps over this result, so a bare vi.fn()
+    // returning undefined would break every test in this block, not just the
+    // planOptions one.
+    (db.plan.findMany as unknown as Mock).mockResolvedValue([]);
+  });
+
   it("returns null for a user who does not exist", async () => {
     (db.user.findUnique as unknown as Mock).mockResolvedValue(null);
 
@@ -157,6 +165,23 @@ describe("getMemberDetail", () => {
     expect(arg.include.bookings.take).toBe(20);
     expect(arg.include.invoices.take).toBe(20);
     expect(arg.include.attendance.take).toBe(20);
+  });
+
+  it("returns the selectable plan keys in sort order", async () => {
+    (db.user.findUnique as unknown as Mock).mockResolvedValue(memberRow);
+    (db.plan.findMany as unknown as Mock).mockResolvedValue([
+      { key: "CONTENDER", name: "Contender", sortOrder: 1 },
+      { key: "FIGHTER", name: "Fighter", sortOrder: 2 },
+    ]);
+
+    const detail = await getMemberDetail("u1");
+
+    expect(detail?.planOptions).toEqual([
+      { key: "CONTENDER", name: "Contender" },
+      { key: "FIGHTER", name: "Fighter" },
+    ]);
+    const arg = (db.plan.findMany as unknown as Mock).mock.calls[0][0];
+    expect(arg.orderBy).toEqual({ sortOrder: "asc" });
   });
 });
 

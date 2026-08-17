@@ -106,16 +106,19 @@ export async function getMembershipStatus(userId: string) {
  * member with years of history.
  */
 export async function getMemberDetail(id: string) {
-  const user = await db.user.findUnique({
-    where: { id },
-    include: {
-      memberships: { orderBy: { createdAt: "desc" }, take: 1 },
-      bookings: { orderBy: { createdAt: "desc" }, take: 20, include: { class: true } },
-      invoices: { orderBy: { issuedAt: "desc" }, take: 20 },
-      attendance: { orderBy: { checkedInAt: "desc" }, take: 20 },
-      _count: { select: { bookings: true, attendance: true } },
-    },
-  });
+  const [user, plans] = await Promise.all([
+    db.user.findUnique({
+      where: { id },
+      include: {
+        memberships: { orderBy: { createdAt: "desc" }, take: 1 },
+        bookings: { orderBy: { createdAt: "desc" }, take: 20, include: { class: true } },
+        invoices: { orderBy: { issuedAt: "desc" }, take: 20 },
+        attendance: { orderBy: { checkedInAt: "desc" }, take: 20 },
+        _count: { select: { bookings: true, attendance: true } },
+      },
+    }),
+    db.plan.findMany({ orderBy: { sortOrder: "asc" } }),
+  ]);
   if (!user || user.role !== "MEMBER") return null;
 
   const ms = user.memberships[0];
@@ -163,5 +166,8 @@ export async function getMemberDetail(id: string) {
         year: "numeric",
       }),
     })),
+    // The edit form's select options. Returned here rather than fetched
+    // separately by the page: this is already the one query that route makes.
+    planOptions: plans.map((p) => ({ key: p.key, name: p.name })),
   };
 }
