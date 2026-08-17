@@ -92,6 +92,17 @@ async function main() {
     ],
   });
 
+  // Prices carried over verbatim from the two PLAN_PRICES consts these rows
+  // replace ($89 / $149 / $249 a month), so nothing on the public pricing page
+  // changes at the moment of the switch. Phase 5 Task 16 deletes both consts.
+  await db.plan.createMany({
+    data: [
+      { key: "CONTENDER", name: "Contender", priceCents: 8900, sortOrder: 1 },
+      { key: "FIGHTER", name: "Fighter", priceCents: 14900, sortOrder: 2 },
+      { key: "CHAMPION", name: "Champion", priceCents: 24900, sortOrder: 3 },
+    ],
+  });
+
   // Captions come from the alt text so the two never drift apart. An admin
   // replacing these through the gallery screen is the expected end state —
   // these are a starting set, not the club's real photographs.

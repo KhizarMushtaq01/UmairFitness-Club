@@ -247,3 +247,15 @@ model MembershipFreeze {
   createdAt    DateTime   @default(now())
   membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
 }
+
+// Plan prices used to live as a formatted-string const duplicated in
+// features/marketing/queries.ts and features/memberships/queries.ts. They are
+// rows now so an admin can edit them. `key` matches Membership.plan by value;
+// deliberately not a foreign key — see the phase 5 plan, Task 1.
+model Plan {
+  id         String @id @default(cuid())
+  key        String @unique // CONTENDER | FIGHTER | CHAMPION
+  name       String
+  priceCents Int
+  sortOrder  Int
+}
