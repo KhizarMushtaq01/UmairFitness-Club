@@ -31,7 +31,10 @@ export default async function AdminMembersPage({
                 render: (r) => (
                   <Link
                     href={`/dashboard/admin/members/${r.id}`}
-                    className="underline underline-offset-4"
+                    // inline-flex + min-h keeps the tap target at 44px on a
+                    // phone. Bare underlined text measured 17px tall, which is
+                    // the whole row's only way into the detail route.
+                    className="underline underline-offset-4 inline-flex items-center min-h-[44px]"
                   >
                     {r.name}
                   </Link>
