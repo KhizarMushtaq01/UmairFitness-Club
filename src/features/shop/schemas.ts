@@ -7,3 +7,6 @@ export const addProductSchema = z.object({
   category: z.string().min(2),
 });
 export type AddProductInput = z.infer<typeof addProductSchema>;
+
+export const advanceOrderStatusSchema = z.object({ orderId: z.string().min(1) });
+export type AdvanceOrderStatusInput = z.infer<typeof advanceOrderStatusSchema>;
