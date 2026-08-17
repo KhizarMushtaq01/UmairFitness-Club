@@ -2,6 +2,7 @@ import { getPlanBreakdown } from "@/features/memberships/queries";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Topbar } from "@/components/shared/Topbar";
 import { DataTable } from "@/components/shared/DataTable";
+import { PlanRowEditor } from "./PlanRowEditor";
 
 type PlanRow = Awaited<ReturnType<typeof getPlanBreakdown>>[number];
 
@@ -21,6 +22,12 @@ export default async function AdminPlansPage() {
               { header: "Key", render: (r) => r.key },
               { header: "Price", render: (r) => r.price },
               { header: "Members", render: (r) => String(r.memberCount) },
+              {
+                header: "",
+                render: (r) => (
+                  <PlanRowEditor planKey={r.key} name={r.name} priceCents={r.priceCents} />
+                ),
+              },
             ]}
             rows={plans}
           />
