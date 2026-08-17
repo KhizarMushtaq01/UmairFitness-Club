@@ -149,14 +149,19 @@ describe("cancelBooking", () => {
     expect(mockedNotify).toHaveBeenCalledTimes(1); // the cancelling member only
   });
 
-  it("still resolves ok when notify fails after a promotion, since the transaction already committed", async () => {
+  it("still resolves ok when notifying the promoted member fails, since the transaction already committed", async () => {
     tx.booking.findUnique.mockResolvedValue({ id: "b1", userId: "u1", classId: "c1", status: "CONFIRMED" });
     tx.booking.findFirst.mockResolvedValue({ id: "b2", userId: "u2", classId: "c1", status: "WAITLIST" });
-    mockedNotify.mockRejectedValueOnce(new Error("notify boom"));
+    // The cancelling member is notified first, so a bare mockRejectedValueOnce
+    // would land on THAT call and leave the promotion's own try/catch
+    // untested. Resolve call 1 so the rejection reaches call 2, and assert
+    // both calls happened so the rejection cannot silently miss its target.
+    mockedNotify.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error("notify boom"));
 
     const result = await cancelBooking({ bookingId: "b1" });
 
     expect(result).toEqual({ ok: true });
+    expect(mockedNotify).toHaveBeenCalledTimes(2);
   });
 
   it("still notifies the promoted member when notifying the cancelling member fails", async () => {
